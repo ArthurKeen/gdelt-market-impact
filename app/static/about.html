@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GDELT what-if — what this is</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Cg fill=%27%23007339%27%3E%3Ccircle cx=%278%27 cy=%2724%27 r=%275%27/%3E%3Ccircle cx=%2724%27 cy=%278%27 r=%275%27/%3E%3Ccircle cx=%2724%27 cy=%2724%27 r=%273%27/%3E%3C/g%3E%3Cpath d=%27M8 24L24 8M24 8v16%27 stroke=%27%23007339%27 stroke-width=%272.5%27/%3E%3C/svg%3E">
+<link rel="stylesheet" href="static/style.css">
+<style>
+.doc{max-width:46rem;margin:0 auto;padding:2rem 1.25rem 5rem;line-height:1.55}
+.doc h1{font-size:1.5rem;margin:.2rem 0 .3rem}
+.doc h2{font-size:1rem;margin:2.2rem 0 .6rem;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--faint);font-weight:700}
+.doc p{margin:.7rem 0;color:var(--ink)}
+.doc .lead{color:var(--soft)}
+.verdict-key{display:grid;grid-template-columns:auto 1fr;gap:.55rem 1rem;margin:.8rem 0}
+.verdict-key dt{white-space:nowrap}
+.verdict-key dd{margin:0;color:var(--soft)}
+.figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:.7rem;margin:1rem 0}
+.fig{background:var(--sunk);border:1px solid var(--rule);border-radius:5px;padding:.7rem .8rem}
+.fig .n{font-family:var(--mono);font-size:1.15rem;font-weight:650}
+.fig .k{color:var(--faint);font-size:12px;margin-top:.15rem}
+.backlink{display:inline-block;margin-bottom:1rem;color:var(--news)}
+.note{border-left:3px solid var(--book);background:var(--sunk);
+  padding:.6rem .85rem;border-radius:0 4px 4px 0;color:var(--soft);font-size:13.5px}
+</style>
+</head>
+<body>
+<div class="doc">
+<a class="backlink" href=".">&larr; back to the app</a>
+<h1>What this is</h1>
+<p class="lead">A way to ask what a kind of news event does to markets, and get an
+honest answer — including, most of the time, that there isn't one.</p>
+
+<p>It holds real GDELT news events and real market prices in one graph. You can ask
+it two differently shaped questions, and they behave differently.</p>
+
+<p><strong>About a class of events</strong> — "what do US sanctions on China do?"
+It finds comparable past events, measures what each one was followed by, and
+aggregates. <strong>About one specific day</strong> — "what happened on 14 September
+2019?" It measures that day against what the market normally does.</p>
+
+<h2>How to read the answer</h2>
+<p>The verdict box is the point of the whole thing. It says one of:</p>
+<dl class="verdict-key">
+  <dt><strong>Detectable</strong></dt>
+  <dd>The move is far outside what that market normally does. Single large shocks
+      land here.</dd>
+  <dt><strong>Below our bar</strong></dt>
+  <dd>Something moved, but not far enough to separate from ordinary noise.</dd>
+  <dt><strong>Not detectable</strong></dt>
+  <dd>Nothing clears the bar, and the apparent signal fades as more evidence is
+      added. Nearly every <em>class</em> question lands here.</dd>
+  <dt><strong>Cannot be tested</strong></dt>
+  <dd>Too few matching events to ask the question at all. Not a weak "no" — a
+      statement that the question could not be put to the test.</dd>
+</dl>
+<p><strong>"Not detectable" is the system working, not failing.</strong> Being able
+to tell an unanswerable question from an answerable one is the product.</p>
+
+<h2>What is in it</h2>
+<div class="figs" id="figs"></div>
+<p id="spanline" class="lead"></p>
+
+<h2>The two date ranges</h2>
+<p>The selector at the top of the app chooses which span of news a question is asked
+over. <span id="windowline"></span></p>
+<p>The shorter one is pinned and does not move. Figures published in an earlier
+write-up were measured over exactly that span, and keeping it fixed is what lets
+anyone re-run those numbers and get the same answer.</p>
+
+<h2>The main finding</h2>
+<p id="sweepline"></p>
+<p class="note" id="sweepcaveat"></p>
+
+<h2>Further reading</h2>
+<p class="lead">A fuller write-up exists covering the 2018&ndash;2022 work in
+detail — the method, the two bugs that changed the answer, and the figures as
+published at the time. Ask Arthur for it; it is not served here, because it
+describes a smaller dataset than the one running behind this page.</p>
+</div>
+
+<script>
+// No figures are written into the prose above. Every stale number in this project
+// came from typing one into text and changing the data underneath it.
+fetch('api/about').then(r => r.json()).then(d => {
+  const n = (x) => x == null ? '—' : x.toLocaleString();
+  document.getElementById('figs').innerHTML = [
+    ['news events', n(d.corpus.events)],
+    ['days covered', n(d.corpus.days)],
+    ['events naming a group or target', n(d.namedEvents)],
+    ['version', d.version],
+  ].map(([k, v]) => `<div class="fig"><div class="n">${v}</div><div class="k">${k}</div></div>`).join('');
+
+  document.getElementById('spanline').textContent =
+    `Covering ${d.corpus.from} to ${d.corpus.to}.`;
+
+  document.getElementById('windowline').textContent = (d.windows || [])
+    .map(w => `"${w.label}" covers ${w.from} to ${w.to}.`).join(' ');
+
+  const s = d.sweep;
+  if (!s) {
+    document.getElementById('sweepline').textContent =
+      'The sweep has not been run against this dataset yet.';
+    return;
+  }
+  document.getElementById('sweepline').innerHTML =
+    `We asked every question this data can express — every pair of countries, every `
+    + `kind of event, every time horizon, every market sector: <strong>${n(s.tests)} `
+    + `variations</strong>. Once you account for having looked that many times, `
+    + `<strong>${s.survivors === 0 ? 'none of them' : n(s.survivors)}</strong> `
+    + `stands up. ${n(s.clearedLoose)} (${s.clearedLoosePct}%) looked interesting at `
+    + `first glance, which is about what chance alone produces.`;
+  document.getElementById('sweepcaveat').textContent =
+    `The closest any result came was still ${s.missesBarBy}× short of the bar. `
+    + `That margin used to be far wider on a smaller dataset, so the honest summary `
+    + `is "none survived" rather than "missed by miles". Measured on `
+    + `${n(s.corpusEvents)} events, last run ${(s.ranAt || '').slice(0, 10)}.`;
+}).catch(() => {
+  document.getElementById('sweepline').textContent = 'Could not load live figures.';
+});
+</script>
+</body>
+</html>

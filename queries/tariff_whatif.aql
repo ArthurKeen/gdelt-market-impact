@@ -1,0 +1,100 @@
+/* E1 — Tariff shock what-if: THE AUDIT TRAIL, NOT THE ANSWER.
+ *
+ * READ THIS BEFORE QUOTING ANY NUMBER THIS QUERY RETURNS.
+ *
+ * This is the theme-level formulation, and it is retired as an answer. It reaches
+ * a sector through pre-computed Theme->Sector `correlatesWith` edges, which are a
+ * corpus-wide summary rather than anything conditioned on the analogs retrieved.
+ * Theme->Sector is complete bipartite (16 x 11 x 4 = 704 edges), so EVERY analog
+ * reaches EVERY sector and the ranking is identical whichever analogs come back.
+ * Change the question, get the same answer. The cited episodes are decorative.
+ *
+ * It is kept, and kept runnable, because the demo shows this retirement rather
+ * than describing it — and because the path output is a genuinely good audit
+ * trail. Use it to answer "how did this system reach Energy at all", never
+ * "how much does Energy move".
+ *
+ * WHAT REPLACED IT, for the number itself:
+ *   - app/queries.py OUTCOME/SWEEP — computes the move from the price series at
+ *     the analog dates themselves, so the answer moves when the question does.
+ *   - Visualizer editor "GDELT · Class vs instance" — the current headline result.
+ *
+ * And what that replacement found, so nobody re-derives it from this file: there
+ * is NO detectable sector effect from a routine tariff announcement. Swept across
+ * every dyad, CAMEO code, horizon and target in the 21.1M-event corpus, 404,433
+ * tests: NOT ONE survives correction for a search that wide, the strongest missing
+ * the bar by 2.5x (scripts/multiple_testing.py). Specific large shocks are
+ * measurable (Saudi-Russia price war, WTI -24.59%, z = -8.5); event CLASSES are
+ * not. That contrast is the finding.
+ *
+ * THE CAUSAL CHAIN. The event-study edges do NOT hang off Event. They hang off
+ * Theme (correlatesWith: Theme -> Sector/Index/Commodity, 1,088 edges) and off
+ * Commodity/MacroVariable (affects: -> Sector, 77). So an analog reaches a sector as:
+ *
+ *     Event -taggedWith-> Theme -correlatesWith-> Sector
+ *                               \-correlatesWith-> Commodity -affects-> Sector
+ *
+ * Traversing correlatesWith straight out of an Event returns zero rows.
+ *
+ * WITH is mandatory here: this is a cluster, and the traversal reaches vertex
+ * collections (Theme, Sector, Index, Commodity) that are not named in the
+ * traversal loop itself — only the edge collections are. Without it the query
+ * fails at EXECUTION time (error 1521), not at parse time, so it can look fine
+ * in review and die during the demo.
+ *
+ * Bind vars: @cameo (e.g. "163" impose embargo/restrict), @actorFrom "USA",
+ *            @actorTo "CHN", @topK. There is no @themes — an earlier header
+ *            documented one the body never used, and passing it fails with
+ *            "bind parameter 'themes' was not declared".
+ */
+WITH Event, Theme, Sector, Index, Commodity, Actor
+
+// 1) Analog events: same CAMEO action, same dyad. (Stage 3 replaces this with
+//    faceted ArangoSearch scoring over the event_analog view + vector re-rank.)
+LET analogs = (
+  // One event per DATE, not the top-k by volume. Ranking purely on numMentions
+  // collapses 55 available dates onto 4, because coverage is concentrated on the
+  // biggest news days (1,818 mentions on the leader, 78 on the eighth). Taking the
+  // best-supported event per date spans 2018-03..2020-01 instead of two episodes.
+  // Measured 2026-08-21. Stage 2 replaces this with the faceted
+  // scorer over `event_analog`, keeping date diversity as a constraint on top.
+  FOR ev IN Event
+    FILTER ev.cameo == @cameo
+    FILTER ev.actorFromCode == @actorFrom AND ev.actorToCode == @actorTo
+    COLLECT date = ev.dateAdded INTO g
+    LET best = FIRST(FOR x IN g[*].ev SORT x.numMentions DESC RETURN x)
+    SORT best.numMentions DESC
+    LIMIT @topK
+    RETURN best
+)
+
+// 2) Each analog -> its themes -> the assets those themes move.
+FOR ev IN analogs
+  FOR theme, tagEdge IN 1..1 OUTBOUND ev taggedWith
+    FOR asset, corr, path IN 1..2 OUTBOUND theme correlatesWith, affects
+      OPTIONS { uniqueVertices: "path", bfs: true }
+      FILTER IS_SAME_COLLECTION("Sector", asset)
+      // The last hop carries the event-study statistics.
+      LET stat = path.edges[-1]
+      COLLECT sector = asset.name INTO hits = {
+        move: stat.move,
+        horizon: stat.horizonDays,
+        consistency: stat.consistency,
+        analog: ev._key,
+        analogDate: ev.dateAdded,
+        theme: theme.name,
+        articleSupport: tagEdge.articleCount,
+        path: path                     // the actual subgraph used (R4)
+      }
+      LET moves = (FOR h IN hits FILTER h.move != null RETURN h.move)
+      SORT AVERAGE(moves) DESC
+      RETURN {
+        sector,
+        n: LENGTH(hits),
+        expectedMove: AVERAGE(moves),
+        range: [MIN(moves), MAX(moves)],
+        typicalHorizonDays: AVERAGE(hits[*].horizon),
+        analogs: UNIQUE(hits[*].analog),   // cited episodes (auditability)
+        themes: UNIQUE(hits[*].theme),     // why this sector was reached
+        paths: hits[*].path                // the supporting subgraph
+      }

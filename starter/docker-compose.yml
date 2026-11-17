@@ -1,0 +1,13 @@
+# A throwaway ArangoDB for the starter. Community image, no licence, no account.
+# The host port is configurable because 8529 is the port everything else uses.
+services:
+  arangodb:
+    image: arangodb/arangodb:3.12.4
+    environment:
+      ARANGO_ROOT_PASSWORD: ${STARTER_PASSWORD:-starter}
+    ports:
+      - "127.0.0.1:${STARTER_PORT:-8539}:8529"
+    volumes:
+      - starter-data:/var/lib/arangodb3
+volumes:
+  starter-data:

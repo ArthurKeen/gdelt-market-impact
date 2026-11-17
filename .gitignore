@@ -1,0 +1,43 @@
+# secrets / env
+.env
+*.env
+!.env.example
+service-account*.json
+gcp-credentials*.json
+
+# python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# data pulls (large; not versioned)
+data/
+*.csv
+*.parquet
+*.jsonl
+
+# arangodump output (scripts/db_backup.sh)
+backups/
+
+# os / editor
+.DS_Store
+.idea/
+.vscode/
+.claude/
+.cursor/
+
+build/
+
+# W4 continuous pull staging + pre-merge corpus backups
+data/continuous/
+data/*.jsonl.pre-w4
+app/static/vendor/
+target/
+
+# Packaged builds. A bundle built with credentials baked in is trivial to unpack,
+# and a committed one is permanent.
+*.tar.gz

@@ -1,0 +1,269 @@
+{
+ "preregistered": "docs/exposure-hypotheses-h5.md (ee40d07)",
+ "alpha": 0.016666666666666666,
+ "overlapWithH1to4": [
+  "2019-09-15",
+  "2019-09-16",
+  "2020-01-03",
+  "2022-03-25",
+  "2026-02-28",
+  "2026-03-26",
+  "2026-04-07",
+  "2026-07-09"
+ ],
+ "days": [
+  {
+   "day": "2026-03-07",
+   "coverage": 23991,
+   "events": 150
+  },
+  {
+   "day": "2026-04-01",
+   "coverage": 17944,
+   "events": 95
+  },
+  {
+   "day": "2026-03-26",
+   "coverage": 11476,
+   "events": 84
+  },
+  {
+   "day": "2019-09-16",
+   "coverage": 10407,
+   "events": 150
+  },
+  {
+   "day": "2026-03-09",
+   "coverage": 10160,
+   "events": 109
+  },
+  {
+   "day": "2026-07-16",
+   "coverage": 9769,
+   "events": 58
+  },
+  {
+   "day": "2019-09-15",
+   "coverage": 8160,
+   "events": 106
+  },
+  {
+   "day": "2026-04-07",
+   "coverage": 6892,
+   "events": 128
+  },
+  {
+   "day": "2026-07-09",
+   "coverage": 5584,
+   "events": 33
+  },
+  {
+   "day": "2026-03-19",
+   "coverage": 4180,
+   "events": 95
+  },
+  {
+   "day": "2022-03-25",
+   "coverage": 3376,
+   "events": 31
+  },
+  {
+   "day": "2026-09-09",
+   "coverage": 2992,
+   "events": 52
+  },
+  {
+   "day": "2026-02-28",
+   "coverage": 2985,
+   "events": 44
+  },
+  {
+   "day": "2019-09-23",
+   "coverage": 2631,
+   "events": 49
+  },
+  {
+   "day": "2020-01-09",
+   "coverage": 2507,
+   "events": 18
+  },
+  {
+   "day": "2019-05-15",
+   "coverage": 2407,
+   "events": 16
+  },
+  {
+   "day": "2023-03-10",
+   "coverage": 2157,
+   "events": 13
+  },
+  {
+   "day": "2020-11-23",
+   "coverage": 1871,
+   "events": 16
+  },
+  {
+   "day": "2015-08-30",
+   "coverage": 1842,
+   "events": 2
+  },
+  {
+   "day": "2020-01-03",
+   "coverage": 1570,
+   "events": 44
+  },
+  {
+   "day": "2026-10-22",
+   "coverage": 1556,
+   "events": 23
+  },
+  {
+   "day": "2026-06-11",
+   "coverage": 1488,
+   "events": 28
+  },
+  {
+   "day": "2018-04-11",
+   "coverage": 1479,
+   "events": 11
+  },
+  {
+   "day": "2026-07-30",
+   "coverage": 1255,
+   "events": 22
+  },
+  {
+   "day": "2017-01-24",
+   "coverage": 1214,
+   "events": 7
+  },
+  {
+   "day": "2026-09-05",
+   "coverage": 1144,
+   "events": 30
+  },
+  {
+   "day": "2026-05-08",
+   "coverage": 995,
+   "events": 12
+  },
+  {
+   "day": "2016-03-02",
+   "coverage": 972,
+   "events": 5
+  },
+  {
+   "day": "2019-10-12",
+   "coverage": 906,
+   "events": 11
+  },
+  {
+   "day": "2018-09-19",
+   "coverage": 874,
+   "events": 2
+  },
+  {
+   "day": "2020-02-20",
+   "coverage": 814,
+   "events": 10
+  },
+  {
+   "day": "2016-05-26",
+   "coverage": 746,
+   "events": 23
+  },
+  {
+   "day": "2026-08-07",
+   "coverage": 729,
+   "events": 15
+  },
+  {
+   "day": "2026-04-22",
+   "coverage": 712,
+   "events": 13
+  },
+  {
+   "day": "2019-11-25",
+   "coverage": 659,
+   "events": 8
+  },
+  {
+   "day": "2015-03-31",
+   "coverage": 626,
+   "events": 14
+  },
+  {
+   "day": "2017-11-05",
+   "coverage": 573,
+   "events": 5
+  },
+  {
+   "day": "2015-04-26",
+   "coverage": 572,
+   "events": 10
+  },
+  {
+   "day": "2021-03-08",
+   "coverage": 563,
+   "events": 15
+  },
+  {
+   "day": "2019-06-23",
+   "coverage": 561,
+   "events": 8
+  }
+ ],
+ "results": {
+  "H5.1": {
+   "claim": "Control: Brent rises",
+   "n": 38,
+   "meanPct": 1.237,
+   "t": 1.77,
+   "p": 0.0422,
+   "passes": false,
+   "withoutStrongestDay": {
+    "dropped": 0.1458073509126119,
+    "n": 37,
+    "meanPct": 0.876,
+    "t": 1.43,
+    "p": 0.0808,
+    "passes": false,
+    "droppedDay": "2019-09-16"
+   }
+  },
+  "H5.2": {
+   "claim": "Japan more exposed: Nikkei minus S&P",
+   "n": 38,
+   "meanPct": -0.032,
+   "t": -0.11,
+   "p": 0.456,
+   "passes": false,
+   "withoutStrongestDay": {
+    "dropped": -0.06030123854168912,
+    "n": 37,
+    "meanPct": 0.13,
+    "t": 0.52,
+    "p": 0.696,
+    "passes": false,
+    "droppedDay": "2026-03-07"
+   }
+  },
+  "H5.3": {
+   "claim": "Korea more exposed: KOSPI minus S&P (data-suggested)",
+   "n": 38,
+   "meanPct": -0.259,
+   "t": -0.6,
+   "p": 0.275,
+   "passes": false,
+   "withoutStrongestDay": {
+    "dropped": -0.0728215321915191,
+    "n": 37,
+    "meanPct": -0.069,
+    "t": -0.18,
+    "p": 0.431,
+    "passes": false,
+    "droppedDay": "2026-02-28"
+   }
+  }
+ }
+}

@@ -1,0 +1,30 @@
+# Core
+python-arango>=8.0
+python-dotenv>=1.0
+
+# GDELT source (BigQuery -> GCS)
+google-cloud-bigquery>=3.20
+google-cloud-storage>=2.16
+pandas>=2.2
+pyarrow>=16.0
+
+# Market price data (POC decision: yfinance + FRED — both free; docs/market-data.md)
+yfinance>=0.2           # indices, sector ETFs, commodities, tickers (daily OHLCV)
+requests>=2.31
+fredapi>=0.5            # daily yields, breakevens, dollar; needs a free FRED key
+
+# Shared ArangoDB-Solutions libraries (install from local checkouts / private index).
+# These are the reuse points — do NOT re-implement. Uncomment/point as available:
+# arango-cypher-py            # NL -> Cypher/AQL front end
+# arangodb-schema-analyzer    # schema mapping + FK/JOIN_TABLE inference (RSA core)
+# graph_analytics_ai          # agentic-graph-analytics: GAE orchestration
+# arango-entity-resolution    # canonicalize GDELT actors
+
+# Dev
+ruff>=0.5
+mypy>=1.10
+pytest>=8.0
+
+# What-if demo UI (app/) — read-only local server, see app/README.md
+fastapi>=0.115
+uvicorn[standard]>=0.30

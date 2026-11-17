@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GDELT what-if</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Cg fill=%27%23007339%27%3E%3Ccircle cx=%278%27 cy=%2724%27 r=%275%27/%3E%3Ccircle cx=%2724%27 cy=%278%27 r=%275%27/%3E%3Ccircle cx=%2724%27 cy=%2724%27 r=%273%27/%3E%3C/g%3E%3Cpath d=%27M8 24L24 8M24 8v16%27 stroke=%27%23007339%27 stroke-width=%272.5%27/%3E%3C/svg%3E">
+<link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+
+<header class="bar">
+  <div class="brand">GDELT <span>what-if</span></div>
+  <div class="modes">
+    <button type="button" class="mode on" data-mode="class">a class of events</button>
+    <button type="button" class="mode" data-mode="event">one specific event</button>
+  </div>
+  <!-- Tool controls, not part of the question: they sit together at the end of the
+       top row, IN the flow. The toggle used to be absolutely positioned in the
+       corner, which reserves no space, so the Ask button flowed underneath it. -->
+  <div class="tools">
+    <a class="aboutLink" href="about" title="What this is and how to read it">what is this?</a>
+    <button type="button" class="themeToggle" id="themeToggle" title="Switch day / night">
+      <span class="glyph">☀</span><span class="word">day</span>
+    </button>
+  </div>
+
+  <!-- Plain English, read by rule into the form below. The reading is shown before
+       anything is measured, so a misread question is visible, not silently answered. -->
+  <form id="nl" class="ask nl">
+    <input type="text" id="nlText" autocomplete="off"
+           placeholder="Ask in plain English — “What if the Houthis attack Saudi Aramco?” or “What happened at Abqaiq?”">
+    <button type="submit" id="nlGo">Read it</button>
+    <p class="nlread" id="nlRead"></p>
+  </form>
+  <form id="ask" class="ask" data-for="class">
+    <!-- A grid, so each narrowing control sits UNDER the field it narrows: the
+         group beneath the actor doing it, the target beneath the actor it is done
+         to. Stacked after the sentence they read as two more unrelated dropdowns. -->
+    <div class="qgrid">
+      <span class="lead">what if</span>
+      <select id="actorFrom"></select>
+      <select id="cameo">
+        <optgroup label="says (diplomatic)">
+          <option value="163">imposes sanctions / embargo on</option>
+          <option value="160">reduces relations with</option>
+          <option value="138">threatens</option>
+          <option value="112">accuses</option>
+        </optgroup>
+        <optgroup label="does (physical)">
+          <option value="190">attacks with military force</option>
+          <option value="195">attacks from the air</option>
+          <option value="193">fights with small arms</option>
+          <option value="180">attacks unconventionally</option>
+          <option value="172">blockades / restricts movement</option>
+          <option value="173">arrests / detains people from</option>
+        </optgroup>
+      </select>
+      <select id="actorTo"></select>
+
+      <span></span>
+      <label class="narrow">named <select id="group"><option value="">any group</option></select></label>
+      <span></span>
+      <label class="narrow">hitting <select id="target"><option value="">any target</option></select></label>
+    </div>
+    <label class="h">over
+      <select id="horizon"><option>1</option><option>3</option><option selected>5</option><option>10</option></select>
+      trading days
+    </label>
+    <button type="submit" id="go">Ask</button>
+  </form>
+
+  <form id="askEvent" class="ask hidden" data-for="event">
+    <label class="q">what happened when
+      <select id="episode"></select>
+    </label>
+    <label class="h">or on
+      <input type="date" id="eventDate" min="2018-02-27" max="2022-03-10">
+    </label>
+    <label class="h">over
+      <select id="eventHorizon"><option selected>1</option><option>3</option><option>5</option><option>10</option></select>
+      trading days
+    </label>
+    <button type="submit" id="goEvent">Ask</button>
+    <label class="h narrow">or find days where
+      <select id="findGroup"><option value="">any group</option></select>
+    </label>
+    <label class="h narrow">hit
+      <select id="findTarget"><option value="">any target</option></select>
+    </label>
+  </form>
+
+  <div class="corpus" id="corpus">…</div>
+  <!-- Only rendered when the database actually holds more than one measurement
+       window. Against the delivered corpus there is nothing to choose, and a
+       control with one option is noise. -->
+  <div class="corpus" id="windowPick" style="display:none"></div>
+</header>
+
+<!-- Driving this live means hitting one combination out of 11 x 10 x 2 dropdown
+     states while talking. These are the four the demo actually needs, in the order
+     it needs them. Each sets every control and fires the query. -->
+<nav class="presets" id="presets">
+  <span class="plabel">demo</span>
+  <button type="button" data-preset="tariff">1 · Tariffs on China</button>
+  <button type="button" data-preset="houthi">2 · Houthi attacks on Saudi</button>
+  <button type="button" data-preset="abqaiq">3 · …and Abqaiq alone</button>
+  <button type="button" data-preset="pricewar">4 · Saudi-Russia price war</button>
+  <span class="phint" id="phint"></span>
+</nav>
+
+<main>
+  <section class="panel graph-panel">
+    <h2>The evidence <span class="sub" id="graphSub"></span></h2>
+    <div id="cy"></div>
+    <div class="tip hidden" id="tip"></div>
+    <p class="graphnote" id="graphNote"></p>
+    <ul class="legend">
+      <li><i class="sw ev"></i>event</li>
+      <li><i class="sw th"></i>theme</li>
+      <li><i class="sw se"></i>sector</li>
+      <li class="spacer"></li>
+      <li><i class="sw conflict"></i>conflictual event</li>
+    </ul>
+  </section>
+
+  <section class="side">
+    <div class="panel verdict" id="verdictPanel">
+      <h2>Is this answerable?</h2>
+      <div class="verdict-body">
+        <div class="call" id="call">—</div>
+        <p class="headline" id="headline">Ask a question.</p>
+        <p class="detail" id="detail"></p>
+        <p class="crossref" id="crossref"></p>
+      </div>
+    </div>
+
+    <!-- Populated by clicking an event in the graph. Hidden until then: an empty
+         card on every question is noise, and the panel only makes sense once
+         there is a node selected. -->
+    <div class="panel evdetail hidden" id="evDetail">
+      <h2>The event you clicked <span class="sub" id="evDetailSub"></span></h2>
+      <div class="verdict-body">
+        <p class="headline" id="evdTitle">—</p>
+        <dl class="kv" id="evdKV"></dl>
+        <p class="detail sources">
+          <a id="evdLink" href="#" target="_blank" rel="noopener">source article</a>
+          <a id="evdArchive" href="#" target="_blank" rel="noopener">archived copy</a>
+          <span class="rot" id="evdRot"></span>
+        </p>
+        <p class="foot" id="evdThemes"></p>
+      </div>
+    </div>
+
+    <!-- The cross-graph join: Portfolio -holds-> Holding -holds-> Company|Index,
+         measured over whatever the question measured. Both modes. -->
+    <div class="panel" id="pfPanel" style="display:none">
+      <h2>Your portfolio <span class="sub" id="pfSub"></span></h2>
+      <p class="pfsum" id="pfSum"></p>
+      <table class="t"><thead id="pfHead"></thead><tbody id="pfRows"></tbody></table>
+      <p class="foot" id="pfFoot"></p>
+    </div>
+
+    <div class="panel mode-class">
+      <h2>Does it survive more evidence?</h2>
+      <table class="t sweep"><thead>
+        <tr><th class="num">analogs</th><th>strongest sector</th><th class="num">move</th><th class="num">t</th><th></th></tr>
+      </thead><tbody id="sweep"><tr><td colspan="5" class="empty">—</td></tr></tbody></table>
+      <p class="foot">A real effect sharpens as the sample grows. Noise wanders and fades.</p>
+    </div>
+
+    <div class="panel mode-class">
+      <h2>The estimate <span class="sub" id="outcomeSub"></span></h2>
+      <table class="t"><thead>
+        <tr><th>sector</th><th class="num">mean move</th><th class="num">worst … best observed</th><th class="num">t</th><th class="num">n</th></tr>
+      </thead><tbody id="outcome"><tr><td colspan="5" class="empty">—</td></tr></tbody></table>
+    </div>
+
+    <div class="panel mode-event hidden" id="finderPanel" style="display:none">
+      <h2>Days matching that description <span class="sub" id="finderSub"></span></h2>
+      <table class="t"><thead>
+        <tr><th>day</th><th class="num">events</th><th class="num">coverage</th><th>named</th></tr>
+      </thead><tbody id="finder"><tr><td colspan="4" class="empty">—</td></tr></tbody></table>
+      <p class="foot">Click a day to measure it. Ranked by coverage, because the
+        best-covered day is the one worth measuring first.</p>
+    </div>
+
+    <div class="panel mode-event hidden">
+      <h2>How far each series moved<span class="sub" id="evSub"></span>
+        <!-- Which sigma the verdict uses. All three columns show regardless; this
+             chooses the one that decides. It lives here rather than in the question
+             because it is a choice about how to read the answer. -->
+        <label class="panelctl">measured against
+          <select id="baseline">
+            <option value="global" selected>the whole corpus</option>
+            <option value="trailing">the 60 days before</option>
+            <option value="regime">its volatility regime</option>
+          </select>
+        </label>
+      </h2>
+      <table class="t"><thead>
+        <tr><th>series</th><th class="num">move</th>
+            <th class="num">vs normal day</th>
+            <th class="num dim">whole corpus</th>
+            <th class="num dim">60 days before</th>
+            <th class="num dim">regime</th></tr>
+      </thead><tbody id="evRows"><tr><td colspan="6" class="empty">—</td></tr></tbody></table>
+      <p class="foot" id="baselineFoot"></p>
+      <p class="foot">One event has no average, so the measure is how far the move sits
+        from what that series does ordinarily; beyond 3× is outside its usual range.
+        Equity sectors are shown net of the S&amp;P — on a day the whole market moves,
+        the raw figure credits the event with the market's move.</p>
+    </div>
+
+    <!-- How a shock travels: rates, inflation expectations, the dollar. Context
+         beside the answer, never part of the verdict. -->
+    <div class="panel mode-event hidden" id="macroPanel" style="display:none">
+      <h2>Rates, inflation expectations and the dollar <span class="sub" id="macroSub"></span></h2>
+      <table class="t"><thead>
+        <tr><th>series</th><th class="num">move</th><th class="num">vs normal day</th></tr>
+      </thead><tbody id="macroRows"></tbody></table>
+      <p class="foot">Yields and breakevens move in basis points, not percent: a rate going
+        from 0.05% to 0.08% is +3bp. Shown for context — they never decide the verdict.</p>
+    </div>
+
+    <!-- Who else felt it: the markets a Gulf shock reaches that the S&P does not
+         show. Raw moves, beside the answer and never part of it. -->
+    <div class="panel mode-event hidden" id="expoPanel" style="display:none">
+      <h2>Who else felt it <span class="sub" id="expoSub"></span></h2>
+      <table class="t"><thead>
+        <tr><th>market</th><th>why it is here</th><th class="num">move</th><th class="num">vs normal day</th></tr>
+      </thead><tbody id="expoRows"></tbody></table>
+      <p class="foot">Raw moves, not net of the S&amp;P: these markets trade at other hours,
+        so subtracting the same day's S&amp;P would mix two different days. On a day the
+        whole market falls, read them against the S&amp;P above. Each is measured from its
+        own last close before the day, so a market shut for a holiday shows its next
+        session. Shown for context — they never decide the verdict.</p>
+    </div>
+
+    <!-- Why those markets: chokepoint -> good -> who depends on it, every figure
+         sourced. An explanation of what is on screen, not evidence it moved. -->
+    <div class="panel mode-event hidden" id="pathPanel" style="display:none">
+      <h2>Why these markets: the supply paths <span class="sub" id="pathSub"></span></h2>
+      <div class="paths" id="pathBody"></div>
+      <p class="foot">Published figures, each linked to its source. They explain why the
+        markets above are worth watching on a day like this. They are not evidence that
+        any of them moved: tests stated in advance found no systematic extra hit to Japan,
+        Korea or TSMC, on the Gulf's biggest conflict-news days or on days whose
+        coverage names an oil facility.</p>
+    </div>
+
+    <div class="panel mode-class">
+      <h2>For contrast — shocks measured directly</h2>
+      <table class="t"><thead>
+        <tr><th>event</th><th class="num">1d</th><th class="num">3d</th><th class="num">5d</th><th class="num">10d</th></tr>
+      </thead><tbody id="oil"><tr><td colspan="5" class="empty">…</td></tr></tbody></table>
+      <p class="foot">Named supply events, no retrieval and no averaging. This is what a
+        detectable shock looks like.</p>
+    </div>
+  </section>
+</main>
+
+<script src="static/vendor/cytoscape.min.js"></script>
+<script src="static/vendor/dagre.min.js"></script>
+<script src="static/vendor/cytoscape-dagre.js"></script>
+<script src="static/app.js"></script>
+</body>
+</html>

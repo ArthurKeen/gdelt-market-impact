@@ -1,0 +1,240 @@
+{
+ "preregistered": "docs/exposure-hypotheses.md (dd547ef)",
+ "alpha": 0.0125,
+ "days": [
+  {
+   "day": "2016-01-04",
+   "coverage": 13363,
+   "events": 212
+  },
+  {
+   "day": "2019-06-21",
+   "coverage": 5956,
+   "events": 179
+  },
+  {
+   "day": "2020-01-08",
+   "coverage": 5941,
+   "events": 217
+  },
+  {
+   "day": "2026-02-28",
+   "coverage": 5240,
+   "events": 207
+  },
+  {
+   "day": "2017-06-07",
+   "coverage": 4750,
+   "events": 79
+  },
+  {
+   "day": "2019-09-15",
+   "coverage": 4172,
+   "events": 101
+  },
+  {
+   "day": "2026-03-11",
+   "coverage": 3199,
+   "events": 135
+  },
+  {
+   "day": "2015-08-26",
+   "coverage": 2964,
+   "events": 123
+  },
+  {
+   "day": "2026-04-07",
+   "coverage": 2916,
+   "events": 135
+  },
+  {
+   "day": "2019-01-09",
+   "coverage": 2859,
+   "events": 18
+  },
+  {
+   "day": "2019-09-16",
+   "coverage": 2846,
+   "events": 161
+  },
+  {
+   "day": "2026-03-18",
+   "coverage": 2566,
+   "events": 128
+  },
+  {
+   "day": "2019-07-24",
+   "coverage": 2488,
+   "events": 20
+  },
+  {
+   "day": "2016-01-03",
+   "coverage": 2483,
+   "events": 103
+  },
+  {
+   "day": "2024-04-13",
+   "coverage": 2451,
+   "events": 36
+  },
+  {
+   "day": "2018-11-12",
+   "coverage": 2384,
+   "events": 44
+  },
+  {
+   "day": "2026-03-02",
+   "coverage": 2349,
+   "events": 305
+  },
+  {
+   "day": "2024-10-06",
+   "coverage": 2089,
+   "events": 58
+  },
+  {
+   "day": "2022-03-25",
+   "coverage": 1833,
+   "events": 18
+  },
+  {
+   "day": "2026-07-19",
+   "coverage": 1791,
+   "events": 48
+  },
+  {
+   "day": "2026-07-09",
+   "coverage": 1738,
+   "events": 82
+  },
+  {
+   "day": "2024-10-22",
+   "coverage": 1734,
+   "events": 82
+  },
+  {
+   "day": "2019-08-04",
+   "coverage": 1727,
+   "events": 12
+  },
+  {
+   "day": "2015-10-30",
+   "coverage": 1717,
+   "events": 25
+  },
+  {
+   "day": "2026-03-30",
+   "coverage": 1681,
+   "events": 160
+  },
+  {
+   "day": "2026-06-04",
+   "coverage": 1678,
+   "events": 23
+  },
+  {
+   "day": "2021-05-19",
+   "coverage": 1674,
+   "events": 20
+  },
+  {
+   "day": "2026-03-26",
+   "coverage": 1616,
+   "events": 140
+  },
+  {
+   "day": "2026-09-02",
+   "coverage": 1611,
+   "events": 84
+  },
+  {
+   "day": "2023-05-25",
+   "coverage": 1508,
+   "events": 8
+  },
+  {
+   "day": "2026-06-10",
+   "coverage": 1497,
+   "events": 121
+  },
+  {
+   "day": "2015-01-18",
+   "coverage": 1476,
+   "events": 46
+  },
+  {
+   "day": "2022-04-09",
+   "coverage": 1415,
+   "events": 5
+  },
+  {
+   "day": "2017-06-17",
+   "coverage": 1408,
+   "events": 23
+  },
+  {
+   "day": "2019-06-24",
+   "coverage": 1365,
+   "events": 100
+  },
+  {
+   "day": "2016-08-21",
+   "coverage": 1347,
+   "events": 14
+  },
+  {
+   "day": "2025-04-26",
+   "coverage": 1312,
+   "events": 9
+  },
+  {
+   "day": "2023-10-25",
+   "coverage": 1303,
+   "events": 44
+  },
+  {
+   "day": "2015-06-06",
+   "coverage": 1295,
+   "events": 38
+  },
+  {
+   "day": "2020-01-03",
+   "coverage": 1286,
+   "events": 143
+  }
+ ],
+ "results": {
+  "H1": {
+   "claim": "Japan more exposed than the US: Nikkei minus S&P",
+   "n": 37,
+   "meanPct": 0.176,
+   "t": 0.68,
+   "p": 0.749,
+   "passes": false
+  },
+  "H2": {
+   "claim": "Positive control: Brent rises",
+   "n": 37,
+   "meanPct": 0.658,
+   "t": 1.08,
+   "p": 0.144,
+   "passes": false
+  },
+  "H3": {
+   "claim": "Helium channel: TSMC minus Taiwan TAIEX",
+   "n": 37,
+   "meanPct": 0.188,
+   "t": 1.33,
+   "p": 0.904,
+   "passes": false
+  },
+  "H4": {
+   "claim": "Tankers gain: Frontline",
+   "n": 37,
+   "meanPct": -0.074,
+   "t": -0.12,
+   "p": 0.548,
+   "passes": false
+  }
+ }
+}
