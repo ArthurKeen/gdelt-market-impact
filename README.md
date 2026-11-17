@@ -165,5 +165,5 @@ what it can and cannot detect, with the evidence shown.
 
 ## License
 
-Apache License 2.0. See [LICENSE](LICENSE). GDELT, Yahoo Finance and FRED data are
+Apache License 2.0, copyright 2026 ArangoDB GmbH. See [LICENSE](LICENSE). GDELT, Yahoo Finance and FRED data are
 subject to their own terms.

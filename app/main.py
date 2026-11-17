@@ -73,7 +73,7 @@ TARIFF_EPISODES = [
     {"d": "2019-12-13", "label": "Phase One deal announced"},
 ]
 
-APP_VERSION = "1.8.1"
+APP_VERSION = "1.8.2"
 
 app = FastAPI(title="GDELT what-if", docs_url=None, redoc_url=None)
 _db = None
