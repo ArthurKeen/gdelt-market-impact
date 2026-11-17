@@ -18,12 +18,14 @@ import argparse
 import os
 import sys
 
-from _common import DB_NAME, db
+from _common import DB_NAME, db, env
 
 # Databases this tool must never touch even if .env is misconfigured. Belt and
 # braces: `drop` also requires the name to equal ARANGO_DATABASE and be retyped.
-# Add the names of any other databases on a shared cluster.
-PROTECTED = {"_system"}
+# On a shared cluster, list the other databases in .env so a misconfigured
+# ARANGO_DATABASE can never name one: ARANGO_PROTECTED_DBS=teamA_db,teamB_db
+PROTECTED = {"_system"} | {
+    n.strip() for n in (env("ARANGO_PROTECTED_DBS") or "").split(",") if n.strip()}
 
 
 def _target() -> str:

@@ -36,8 +36,12 @@ sys.path.insert(0, str(REPO / "scripts"))
 
 # Where a stale figure could be sitting. FROZEN paths are skipped on purpose:
 # a document that records what was true on the day it was written belongs here.
+# Add your own, comma-separated, in .env: HEADLINE_FROZEN=report-2025,summary-v1
+from _common import env  # noqa: E402  (also loads .env)
+
 SEARCH_PATHS = ("README.md", "docs", "app/static")
-FROZEN = ("vendor/", "headline-figures.json")
+FROZEN = ("vendor/", "headline-figures.json") + tuple(
+    p.strip() for p in (env("HEADLINE_FROZEN") or "").split(",") if p.strip())
 
 # (id, what it is, date, horizon, window, baseline, target, field, pinned)
 # `pinned` marks figures a refresh must not move — see the module docstring.
