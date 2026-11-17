@@ -23,7 +23,7 @@ ones, and shows its working either way.
 ## Build it yourself in a few minutes
 
 ```bash
-git clone <this repository>
+git clone https://github.com/ArthurKeen/gdelt-market-impact.git
 cd gdelt-market-impact
 python3 -m venv .venv && .venv/bin/python -m pip install -r requirements.txt
 starter/run.sh
