@@ -13,13 +13,6 @@ yfinance>=0.2           # indices, sector ETFs, commodities, tickers (daily OHLC
 requests>=2.31
 fredapi>=0.5            # daily yields, breakevens, dollar; needs a free FRED key
 
-# Shared ArangoDB-Solutions libraries (install from local checkouts / private index).
-# These are the reuse points — do NOT re-implement. Uncomment/point as available:
-# arango-cypher-py            # NL -> Cypher/AQL front end
-# arangodb-schema-analyzer    # schema mapping + FK/JOIN_TABLE inference (RSA core)
-# graph_analytics_ai          # agentic-graph-analytics: GAE orchestration
-# arango-entity-resolution    # canonicalize GDELT actors
-
 # Dev
 ruff>=0.5
 mypy>=1.10

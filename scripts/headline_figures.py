@@ -168,7 +168,7 @@ def main() -> int:
     for ch in changes:
         flag = "  ** PINNED — investigate before editing anything **" if ch["pinned"] else ""
         print(f"\n  {ch['label']}: {ch['old']} -> {ch['new']}{flag}")
-        for ln in ch["lines"] or ["(not quoted anywhere outside the frozen deliverables)"]:
+        for ln in ch["lines"] or ["(not quoted anywhere outside frozen documents)"]:
             print(f"      {ln[:160]}")
     if args.report:
         pathlib.Path(args.report).write_text(json.dumps(changes, indent=2) + "\n")

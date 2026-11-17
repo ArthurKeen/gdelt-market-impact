@@ -35,7 +35,6 @@ build/
 # W4 continuous pull staging + pre-merge corpus backups
 data/continuous/
 data/*.jsonl.pre-w4
-app/static/vendor/
 target/
 
 # Packaged builds. A bundle built with credentials baked in is trivial to unpack,

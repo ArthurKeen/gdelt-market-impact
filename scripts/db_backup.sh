@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 # Backup / restore for this repo's ArangoDB database.
 #
-# The pilot cluster has no arangodump/arangorestore installed locally, so both
-# run from the ArangoDB CE Docker image. IMAGE is pinned to 3.12.9-1 to match the
-# server exactly (`arangodb:3.12` tag) — a dump taken by a different minor can
-# refuse to restore.
+# No arangodump/arangorestore needs to be installed locally: both run from the
+# ArangoDB CE Docker image. Pin IMAGE to your server's minor version; a dump taken
+# by a different minor can refuse to restore.
 #
 #   scripts/db_backup.sh dump                  # -> backups/<db>-<UTC timestamp>/
 #   scripts/db_backup.sh restore backups/DIR   # into ARANGO_DATABASE

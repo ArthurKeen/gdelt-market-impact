@@ -1,7 +1,7 @@
-"""Install Graph Visualizer saved queries + canvas actions for the E1 demo (D10).
+"""Install Graph Visualizer saved queries + canvas actions for the tariff demo.
 
 Companion to install_visualizer.py (which installs the `gdelt_causal_impact`
-theme). Per the arangodb-visualizer-customizer skill:
+theme). Where each asset lives:
 
   * `_queries`              -> Graph Visualizer "Queries" panel. Field: queryText.
                               Linked to a viewpoint via `_viewpointQueries`.
@@ -11,13 +11,13 @@ theme). Per the arangodb-visualizer-customizer skill:
                               This is where the tabular/aggregate queries live.
   * `_canvasActions`        -> right-click menu. Field: queryText, bind var @nodes.
                               Linked via `_viewpointActions`.
-  * managed/cloud deployment (ACP pilot) => everything goes in the TARGET db.
+  * managed/cloud deployment => everything goes in the TARGET db.
 
 Every panel query is written with hard-coded demo defaults and
 `bindVariables: {}` so a click just works on the call — nobody types bind vars
 in front of an audience.
 
-`WITH` is mandatory on all of these: gdelt_market is a 3-DBServer cluster and the
+`WITH` is mandatory on all of these on a cluster deployment: the
 traversals reach vertex collections the traversal loop does not name, which fails
 at EXECUTION (error 1521), not at parse time.
 
@@ -52,7 +52,7 @@ DEMO_CAMEO = "163"          # impose embargo / restrict
 DEMO_FROM, DEMO_TO = "USA", "CHN"
 CONFIDENT = 2.0             # |tStat| threshold, matches the theme's colour rule
 # Only 4 of 11 sectors have portfolio exposure (IT, Energy, Financials, Industrials).
-# Probe one that does, or the D5 action tests EMPTY and hides a real regression.
+# Probe one that does, or the portfolio action tests EMPTY and hides a real regression.
 DEMO_SECTOR = "Information_Technology"
 
 # E2 / oil. The demo's second half, and the half that carries a real result: the
@@ -88,7 +88,7 @@ def with_clause(vertex_colls: set[str], edge_colls: set[str]) -> str:
 
 
 # --------------------------------------------------------------------------
-# Visualizer "Queries" panel — graph-loading, ordered to the §10.2 runbook
+# Visualizer "Queries" panel — graph-loading, ordered as a walkthrough
 # --------------------------------------------------------------------------
 def analog_subquery(limit: int) -> str:
     """The E1 analog set, one event per date.
@@ -129,7 +129,7 @@ def panel_queries(w: str) -> list[dict]:
                             "fixture. The day's biggest story is a US sanctions action on "
                             "China — the same event type step 2 retrieves analogs for."),
             "query": f"""{w}
-// Runbook 10.2 step 1 — the corpus is real.
+// Step 1 — the corpus is real.
 FOR ev IN (
     FOR e IN Event
       FILTER e.dateAdded == "{DEMO_DATE}"
@@ -146,9 +146,9 @@ FOR ev IN (
                             "USA→CHN tariff action (CAMEO 163), with the themes each "
                             "analog carries. One event per date, so the eight span eight "
                             "distinct dates across the whole E1 window rather than "
-                            "clustering on the two biggest news days (G10)."),
+                            "clustering on the two biggest news days."),
             "query": f"""{w}
-// Runbook 10.2 step 2 — hypothetical -> historical analogs.
+// Step 2 — hypothetical -> historical analogs.
 FOR ev IN (
     {analog_subquery(8)})
   FOR theme, tagged, p IN 1..1 OUTBOUND ev taggedWith
@@ -161,9 +161,9 @@ FOR ev IN (
                             "those themes historically moved. Every number in the answer traces "
                             "back along one of these lines — which is what made it testable. Pinned to the 5-day "
                             "horizon — the study computes four (1/3/5/10d) and showing all of "
-                            "them quadruples the canvas into noise. NOTE: the sector figures these paths lead to do not survive a larger sample — run the sweep query before quoting any of them. (R4/S2)"),
+                            "them quadruples the canvas into noise. NOTE: the sector figures these paths lead to do not survive a larger sample — run the sweep query before quoting any of them."),
             "query": f"""{w}
-// Runbook 10.2 step 3 — the audit trail, not the answer.
+// Step 3 — the audit trail, not the answer.
 // ONE 2-hop traversal, not two nested 1-hop ones: `p` must contain BOTH edges or
 // the Visualizer renders Theme->Sector without the Event->Theme hop that explains it.
 // correlatesWith hangs off Theme, never off Event — going straight OUTBOUND from an
@@ -180,10 +180,10 @@ FOR ev IN (
             "name": f"4 · E1 causal chain — confident only (|tStat| ≥ {CONFIDENT:.0f}, 5-day)",
             "description": ("The same chain restricted to edges clearing |tStat| >= 2 — ~37 "
                             "paths against query 3's ~121. Run them back to back: the edges "
-                            "that vanish ARE the confidence caveat (S3, §9.1c), shown rather "
+                            "that vanish ARE the confidence caveat, shown rather "
                             "than narrated."),
             "query": f"""{w}
-// Runbook 10.2 step 3, honest variant — only statistically defensible edges.
+// Step 3, honest variant — only statistically defensible edges.
 FOR ev IN (
     {analog_subquery(2)})
   FOR asset, corr, p IN 2..2 OUTBOUND ev taggedWith, correlatesWith
@@ -193,7 +193,7 @@ FOR ev IN (
     RETURN p""",
         },
         {
-            "name": "5 · Portfolio overlay — sector → holdings → portfolio (D5)",
+            "name": "5 · Portfolio overlay — sector → holdings → portfolio",
             "description": ("Turns a market-wide result into \"what does this mean for me\": "
                             "backwards from the sectors the what-if "
                             "moved, back down through Company/Index to the demo "
@@ -204,7 +204,7 @@ FOR ev IN (
                             "the proxy as a field), so use the 'Portfolio exposure' editor "
                             "tables for whole-book coverage."),
             "query": f"""{w}
-// Runbook 10.2 step 5 — market-wide effect -> this portfolio's exposure.
+// Step 5 — market-wide effect -> this portfolio's exposure.
 // holds: Portfolio->Holding->Company/Index ; partOf: Company->Sector, Sector->Index
 FOR sector IN Sector
   FOR v, e, p IN 1..3 INBOUND sector partOf, holds
@@ -215,9 +215,9 @@ FOR sector IN Sector
         },
         {
             "name": "6 · Second-order — commodity / macro → sector (affects)",
-            "description": ("The propagation leg: oil and the macro series (CPI, Fed funds, "
-                            "UST10Y, 10y breakeven) into sectors. 77 affects edges — the "
-                            "macro half only exists since the FRED key was fixed."),
+            "description": ("The propagation leg: oil and the daily macro series (Treasury "
+                            "yields, 10y breakeven, the dollar) into sectors. The macro "
+                            "half exists only when a FRED key is set."),
             "query": f"""{w}
 // The rates/inflation channel a tariff question actually implies.
 FOR src IN UNION(
@@ -232,7 +232,7 @@ FOR src IN UNION(
             "description": ("Shows time. The day-anchor spine (one representative "
                             "event per country-pair per day, chained to the next day's) with "
                             "each link carrying the days elapsed. Makes visible that the corpus "
-                            "is a set of clustered episodes, not an even sweep of dates. (R3)"),
+                            "is a set of clustered episodes, not an even sweep of dates."),
             "query": f"""{w}
 // The day-anchor spine — deliberately NOT a clique.
 FOR ev IN (
@@ -295,7 +295,7 @@ def editor_queries() -> list[dict]:
         {
             "name": "GDELT · Corpus counts by collection",
             "description": ("One row per collection with live document counts — the "
-                            "\"this is real, not a fixture\" number. (Runbook 10.2 step 1)"),
+                            "\"this is real, not a fixture\" number."),
             "query": """/* Corpus scale, straight from the live graph. */
 FOR c IN [
     "Event","Actor","Location","Theme","Source","Sector","Index","Commodity",
@@ -313,9 +313,8 @@ FOR c IN [
                             "t-statistic rather than raw percent, so a highly volatile "
                             "instrument cannot top the list purely by being volatile, with "
                             "the confidence measure surfaced instead of dropped. Every figure here is a "
-                            "small-sample artifact; the sweep query shows why. "
-                            "(Runbook 10.2 step 4; S3, §9.1c, §12)"),
-            "query": f"""/* E1 what-if: historical outcome distribution, NOT a forecast (§7.1). */
+                            "small-sample artifact; the sweep query shows why."),
+            "query": f"""/* E1 what-if: historical outcome distribution, NOT a forecast. */
 WITH Event, Theme, Sector
 FOR ev IN (
     {analog_subquery(8)})
@@ -344,24 +343,23 @@ FOR ev IN (
         themes: UNIQUE(hits[*].theme) }}""",
         },
         {
-            "name": "GDELT · E1 sector impact — ANALOG-CONDITIONAL (W1)",
-            "description": ('The same question answered from the analogs themselves rather than from pre-computed theme averages (W1/G11). Ask a different question and this table changes — the older distribution query cannot, because it reads theme-level edges identical for every hypothetical. That is what made the answer testable, and the test failed: run the sweep query next. These figures are real arithmetic over real events and still do not survive a larger sample.'),
-            "query": '/* E1 what-if — outcome computed over the RETRIEVED ANALOGS (W1/G11).\n *\n * The older "sector impact distribution" query reads pre-computed Theme->Sector\n * `correlatesWith` edges. Those are a theme-level summary: every theme reaches\n * every sector, so that answer is identical whichever analogs come back and the\n * cited events are decorative. This one computes the move from the\n * price series at the analog dates themselves, so changing the question changes\n * the answer.\n *\n * Two subtleties, both found by measurement:\n *   - `PriceSeries.pos` maps EVERY calendar date to the last trading day on or\n *     before it. Events happen at weekends; an exact lookup silently dropped 2 of\n *     8 E1 analogs.\n *   - Observations are then deduplicated BY RESOLVED TRADING DAY. Friday and\n *     Saturday resolve to the same close, and counting that measurement twice\n *     inflates n and shrinks the standard deviation.\n */\nLET analogs = (\n  FOR e IN Event\n    FILTER e.cameo == "163"\n    FILTER e.actorFromCode == "USA" AND e.actorToCode == "CHN"\n    COLLECT date = e.dateAdded INTO g\n    LET best = FIRST(FOR x IN g[*].e SORT x.numMentions DESC RETURN x)\n    SORT best.numMentions DESC\n    LIMIT 8\n    RETURN best)\n\nFOR sector IN Sector\n  LET base = DOCUMENT("BaselineStats", CONCAT(sector.proxySymbol, "_5"))\n  LET ps   = DOCUMENT("PriceSeries", sector.proxySymbol)\n  LET bm   = DOCUMENT("PriceSeries", "_GSPC")\n  LET obs = (\n    FOR a IN analogs\n      LET i = ps.prev[a.dateAdded]\n      FILTER i != null AND i + 5 < LENGTH(ps.closes)\n      COLLECT idx = i INTO grp\n      LET anchor = ps.dates[idx]\n      LET j = bm.pos[anchor]\n      LET raw = (ps.closes[idx + 5] - ps.closes[idx]) / ps.closes[idx]\n      LET bench = (base.useAbnormal AND j != null AND j + 5 < LENGTH(bm.closes))\n                ? (bm.closes[j + 5] - bm.closes[j]) / bm.closes[j] : 0\n      RETURN { anchor, move: raw - bench, events: UNIQUE(grp[*].a._key) })\n  LET moves = obs[*].move\n  LET n  = LENGTH(moves)\n  LET sd = n > 1 ? STDDEV_SAMPLE(moves) : null\n  FILTER n > 0\n  LET excess = AVERAGE(moves) - base.mean\n  LET t = (sd == null OR sd == 0) ? null : excess / (sd / SQRT(n))\n  SORT ABS(t == null ? 0 : t) DESC\n  RETURN {\n    sector: sector.name,\n    expectedMovePct: ROUND(excess * 10000) / 100,\n    tStat: t == null ? null : ROUND(t * 100) / 100,\n    observations: n,\n    baselineMeanPct: ROUND(base.mean * 10000) / 100,\n    tradingDays: obs[*].anchor,\n    analogEvents: UNIQUE(FLATTEN(obs[*].events)) }',
+            "name": "GDELT · E1 sector impact — ANALOG-CONDITIONAL",
+            "description": ('The same question answered from the analogs themselves rather than from pre-computed theme averages. Ask a different question and this table changes — the older distribution query cannot, because it reads theme-level edges identical for every hypothetical. That is what made the answer testable, and the test failed: run the sweep query next. These figures are real arithmetic over real events and still do not survive a larger sample.'),
+            "query": '/* E1 what-if — outcome computed over the RETRIEVED ANALOGS.\n *\n * The older "sector impact distribution" query reads pre-computed Theme->Sector\n * `correlatesWith` edges. Those are a theme-level summary: every theme reaches\n * every sector, so that answer is identical whichever analogs come back and the\n * cited events are decorative. This one computes the move from the\n * price series at the analog dates themselves, so changing the question changes\n * the answer.\n *\n * Two subtleties, both found by measurement:\n *   - `PriceSeries.pos` maps EVERY calendar date to the last trading day on or\n *     before it. Events happen at weekends; an exact lookup silently dropped 2 of\n *     8 E1 analogs.\n *   - Observations are then deduplicated BY RESOLVED TRADING DAY. Friday and\n *     Saturday resolve to the same close, and counting that measurement twice\n *     inflates n and shrinks the standard deviation.\n */\nLET analogs = (\n  FOR e IN Event\n    FILTER e.cameo == "163"\n    FILTER e.actorFromCode == "USA" AND e.actorToCode == "CHN"\n    COLLECT date = e.dateAdded INTO g\n    LET best = FIRST(FOR x IN g[*].e SORT x.numMentions DESC RETURN x)\n    SORT best.numMentions DESC\n    LIMIT 8\n    RETURN best)\n\nFOR sector IN Sector\n  LET base = DOCUMENT("BaselineStats", CONCAT(sector.proxySymbol, "_5"))\n  LET ps   = DOCUMENT("PriceSeries", sector.proxySymbol)\n  LET bm   = DOCUMENT("PriceSeries", "_GSPC")\n  LET obs = (\n    FOR a IN analogs\n      LET i = ps.prev[a.dateAdded]\n      FILTER i != null AND i + 5 < LENGTH(ps.closes)\n      COLLECT idx = i INTO grp\n      LET anchor = ps.dates[idx]\n      LET j = bm.pos[anchor]\n      LET raw = (ps.closes[idx + 5] - ps.closes[idx]) / ps.closes[idx]\n      LET bench = (base.useAbnormal AND j != null AND j + 5 < LENGTH(bm.closes))\n                ? (bm.closes[j + 5] - bm.closes[j]) / bm.closes[j] : 0\n      RETURN { anchor, move: raw - bench, events: UNIQUE(grp[*].a._key) })\n  LET moves = obs[*].move\n  LET n  = LENGTH(moves)\n  LET sd = n > 1 ? STDDEV_SAMPLE(moves) : null\n  FILTER n > 0\n  LET excess = AVERAGE(moves) - base.mean\n  LET t = (sd == null OR sd == 0) ? null : excess / (sd / SQRT(n))\n  SORT ABS(t == null ? 0 : t) DESC\n  RETURN {\n    sector: sector.name,\n    expectedMovePct: ROUND(excess * 10000) / 100,\n    tStat: t == null ? null : ROUND(t * 100) / 100,\n    observations: n,\n    baselineMeanPct: ROUND(base.mean * 10000) / 100,\n    tradingDays: obs[*].anchor,\n    analogEvents: UNIQUE(FLATTEN(obs[*].events)) }',
         },
         {
             "name": "GDELT · Tariff what-if — does the effect survive more evidence?",
-            "description": ('THE result, after widening the corpus 6x (W4). The same tariff question asked with more and more historical examples. A real effect would get stronger; this one evaporates, and the strongest sector changes every time. Only the smallest sample looks significant. Run this before quoting any sector number for the tariff scenario.'),
+            "description": ('THE result, after widening the corpus 6x. The same tariff question asked with more and more historical examples. A real effect would get stronger; this one evaporates, and the strongest sector changes every time. Only the smallest sample looks significant. Run this before quoting any sector number for the tariff scenario.'),
             "query": '/* Does the tariff effect survive more evidence?\n *\n * One analog per 7-day block, so no two 5-day windows can share a trading day,\n * then the same question asked with progressively more of them.\n *\n * A real effect gets STRONGER as observations accumulate — the standard error\n * falls as 1/sqrt(n), so significance rises. Read the output the other way round:\n * the strongest sector keeps CHANGING and the sign keeps flipping. That is what\n * coincidence looks like.\n *\n * Verified 2026-08-23 on the 3.46M-event corpus: Health Care, Information\n * Technology, Information Technology, Health Care, Information Technology at\n * 8/12/20/40/80 analogs, t between -1.9 and +2.3. One cell of five clears |t|=2,\n * which is roughly what five draws from noise produce.\n */\nLET horizon = 5\nLET ranked = (\n  FOR e IN Event\n    FILTER e.cameo == "163" AND e.actorFromCode == "USA" AND e.actorToCode == "CHN"\n    COLLECT blk = FLOOR(DATE_DIFF("2018-01-01", e.dateAdded, "d") / 7) INTO g\n    LET best = FIRST(FOR x IN g[*].e SORT x.numMentions DESC RETURN x)\n    SORT best.numMentions DESC\n    RETURN best)\n\nFOR k IN [8, 12, 20, 40, 80]\n  LET analogs = SLICE(ranked, 0, k)\n  LET perSector = (\n    FOR sector IN Sector\n      LET base = DOCUMENT("BaselineStats", CONCAT(sector.proxySymbol, "_", horizon))\n      LET ps   = DOCUMENT("PriceSeries", sector.proxySymbol)\n      LET bm   = DOCUMENT("PriceSeries", "_GSPC")\n      LET obs = (\n        FOR a IN analogs\n          LET i = ps.prev[a.dateAdded]\n          FILTER i != null AND i + horizon < LENGTH(ps.closes)\n          COLLECT idx = i INTO grp\n          LET j = bm.pos[ps.dates[idx]]\n          LET raw = (ps.closes[idx+horizon] - ps.closes[idx]) / ps.closes[idx]\n          LET bench = (base.useAbnormal AND j != null AND j+horizon < LENGTH(bm.closes))\n                    ? (bm.closes[j+horizon] - bm.closes[j]) / bm.closes[j] : 0\n          RETURN raw - bench)\n      LET n = LENGTH(obs)\n      FILTER n > 1\n      LET sd = STDDEV_SAMPLE(obs)\n      LET ex = AVERAGE(obs) - base.mean\n      LET t  = sd == 0 ? 0 : ex / (sd / SQRT(n))\n      SORT ABS(t) DESC\n      LIMIT 1\n      RETURN { s: sector.name, mv: ROUND(ex*10000)/100, t: ROUND(t*100)/100, n: n })\n  LET top = FIRST(perSector)\n  RETURN {\n    analogsUsed: top.n,\n    strongestSector: top.s,\n    movePct: top.mv,\n    tStat: top.t,\n    looksSignificant: ABS(top.t) >= 2 }',
         },
         {
-            "name": "GDELT · Policy Reaction — tone and attention over time (S4)",
-            "description": ("The first of the two EXISTING GDELT patterns, on the same "
-                            "graph as the what-if traversal — tone and coverage for one "
-                            "relationship, month by month, straight off the Event "
-                            "documents. Shows we extend rather than replace. Also shows "
+            "name": "GDELT · Tone and attention over time",
+            "description": ("Tone and coverage on the same graph as the what-if traversal, "
+                            "for one relationship, month by month, straight off the Event "
+                            "documents. Also shows "
                             "why a tone series needs context: the 2020 collapse is COVID, "
                             "not tariffs."),
-            "query": "/* POLICY REACTION \u2014 sentiment and coverage over time, on the same graph.  (S4)\n *\n * The brief asks that this event graph serve the two EXISTING GDELT solution\n * patterns as well as the new causal what-if traversal \u2014 that we extend rather\n * than replace. This is the Policy-Reaction half: tone and attention for one\n * relationship, month by month, straight off the same Event documents the\n * what-if queries traverse. No extra collection, no separate pipeline.\n *\n * `avgTone` is GDELT's own tone score for the event's coverage, roughly -10 to\n * +10; `gkgTone` is the average over the articles the GKG join actually linked,\n * which is the better number where it exists and null where no article resolved.\n *\n * Read the output before trusting the narrative. Tone drifts from -1.46 to about\n * -2.0 through 2018 as tariffs escalate, and the conflictual share of events rises\n * from 22% to 30% \u2014 that much is the trade war. The sharp fall to -3.14 in February\n * 2020 is NOT: it is COVID coverage entering the same US-China channel. A tone\n * series read without context will attribute a pandemic to a tariff, which is worth\n * demonstrating on the same slide that offers the capability.\n */\nFOR e IN Event\n  FILTER e.actorFromCode == \"USA\" AND e.actorToCode == \"CHN\"\n  FILTER e.dateAdded >= \"2018-03-01\" AND e.dateAdded <= \"2020-03-01\"\n  COLLECT month = SUBSTRING(e.dateAdded, 0, 7)\n    AGGREGATE events    = COUNT(1),\n              coverage  = SUM(e.numMentions),\n              tone      = AVERAGE(e.avgTone),\n              conflict  = SUM(e.quadClass >= 3 ? 1 : 0)\n  SORT month\n  RETURN {\n    month,\n    events,\n    coverage,\n    avgTone:      ROUND(tone * 100) / 100,\n    conflictPct:  ROUND(conflict * 1000 / events) / 10,\n    // A crude sparkline, because a column of numbers hides the shape that is the\n    // whole point of a tone-over-time view.\n    shape: CONCAT(REPEAT(\"\u2581\", FLOOR(ABS(tone))), tone < 0 ? \" negative\" : \" positive\")\n  }\n",
+            "query": "/* TONE AND ATTENTION \u2014 sentiment and coverage over time, on the same graph.\n *\n * Tone and attention for one relationship, month by month, straight off the same\n * Event documents the what-if queries traverse. No extra collection, no separate pipeline.\n *\n * `avgTone` is GDELT's own tone score for the event's coverage, roughly -10 to\n * +10; `gkgTone` is the average over the articles the GKG join actually linked,\n * which is the better number where it exists and null where no article resolved.\n *\n * Read the output before trusting the narrative. Tone drifts from -1.46 to about\n * -2.0 through 2018 as tariffs escalate, and the conflictual share of events rises\n * from 22% to 30% \u2014 that much is the trade war. The sharp fall to -3.14 in February\n * 2020 is NOT: it is COVID coverage entering the same US-China channel. A tone\n * series read without context will attribute a pandemic to a tariff, which is worth\n * demonstrating on the same slide that offers the capability.\n */\nFOR e IN Event\n  FILTER e.actorFromCode == \"USA\" AND e.actorToCode == \"CHN\"\n  FILTER e.dateAdded >= \"2018-03-01\" AND e.dateAdded <= \"2020-03-01\"\n  COLLECT month = SUBSTRING(e.dateAdded, 0, 7)\n    AGGREGATE events    = COUNT(1),\n              coverage  = SUM(e.numMentions),\n              tone      = AVERAGE(e.avgTone),\n              conflict  = SUM(e.quadClass >= 3 ? 1 : 0)\n  SORT month\n  RETURN {\n    month,\n    events,\n    coverage,\n    avgTone:      ROUND(tone * 100) / 100,\n    conflictPct:  ROUND(conflict * 1000 / events) / 10,\n    // A crude sparkline, because a column of numbers hides the shape that is the\n    // whole point of a tone-over-time view.\n    shape: CONCAT(REPEAT(\"\u2581\", FLOOR(ABS(tone))), tone < 0 ? \" negative\" : \" positive\")\n  }\n",
         },
         {
             "name": "GDELT · Class vs instance — the whole argument in one table",
@@ -370,7 +368,7 @@ FOR ev IN (
                             "shocks are unmistakable; and Section 301 measured as one day "
                             "still says no, so this is not a yes-machine. Run this if you "
                             "only have time for one query."),
-            "query": "/* Class vs instance \u2014 the demo's whole argument in one table.  (W4/G12)\n *\n * Two ways to ask a question, measured the same way.\n *\n * A CLASS question (\"what do US tariff threats against China do?\") averages over\n * every matching event. An INSTANCE question (\"what did 2020-03-09 do?\") measures\n * one day against that asset's own normal range.\n *\n * The class rows report t across 80 independent analogs; the instance rows report\n * z for a single day. Different statistics, deliberately: with n=1 there is no\n * significance test, only \"is this outside the range this series produces\".\n *\n * The finding is the gap between them. No event CLASS in this corpus predicts a\n * market move \u2014 swept across every dyad, CAMEO code, horizon and target, 103,776\n * tests returned 1.99% at |t| >= 2.5, which is the chance rate. Specific large\n * surprises are unmistakable.\n *\n * READ THE FOURTH AND SIXTH ROWS TOGETHER. \"Yemen attacks Saudi Arabia with\n * military force\" is the class the Abqaiq strike BELONGS TO \u2014 GDELT has no actor\n * code for the Houthis and resolves them to YEM, so the 2019-09-16 attack is the\n * sixth-ranked analog the class retrieves. The class returns nothing. The single\n * event returns z = +5.1.\n *\n * The same event, asked about two ways, gives both answers. That is the whole\n * argument, and it is not a selection artefact: the shock is inside the evidence\n * set, averaged with 79 other Houthi attacks that hit nothing important.\n */\nLET horizon = 5\n\nLET classRows = (\n  FOR spec IN [\n      { a: \"USA\", b: \"CHN\", c: \"163\", label: \"US tariff threat -> China\" },\n      { a: \"RUS\", b: \"USA\", c: \"130\", label: \"Russia threatens the US\" },\n      { a: \"IRN\", b: \"SAU\", c: \"190\", label: \"Iran uses force -> Saudi\" },\n      { a: \"YEM\", b: \"SAU\", c: \"190\", label: \"Yemen attacks Saudi (CONTAINS Abqaiq)\" }]\n    LET analogs = (\n      FOR e IN Event\n        FILTER e.cameo == spec.c\n        FILTER e.actorFromCode == spec.a AND e.actorToCode == spec.b\n        COLLECT blk = FLOOR(DATE_DIFF(\"2018-01-01\", e.dateAdded, \"d\") / 7) INTO g\n        LET best = FIRST(FOR x IN g[*].e SORT x.numMentions DESC RETURN x)\n        SORT best.numMentions DESC\n        LIMIT 80\n        RETURN best)\n    LET perTarget = (\n      FOR sector IN Sector\n        LET base = DOCUMENT(\"BaselineStats\", CONCAT(sector.proxySymbol, \"_\", horizon))\n        LET ps   = DOCUMENT(\"PriceSeries\", sector.proxySymbol)\n        LET bm   = DOCUMENT(\"PriceSeries\", \"_GSPC\")\n        LET obs = (\n          FOR x IN analogs\n            LET i = ps.prev[x.dateAdded]\n            FILTER i != null AND i + horizon < LENGTH(ps.closes)\n            FILTER ps.closes[i] > 0 AND ps.closes[i + horizon] > 0\n            COLLECT idx = i\n            LET j = bm.pos[ps.dates[idx]]\n            LET raw = (ps.closes[idx+horizon] - ps.closes[idx]) / ps.closes[idx]\n            LET bench = (base.useAbnormal AND j != null AND j+horizon < LENGTH(bm.closes) AND bm.closes[j] > 0)\n                      ? (bm.closes[j+horizon] - bm.closes[j]) / bm.closes[j] : 0\n            RETURN raw - bench)\n        LET n = LENGTH(obs)\n        FILTER n > 1\n        LET sd = STDDEV_SAMPLE(obs)\n        LET ex = AVERAGE(obs) - base.mean\n        LET t  = sd == 0 ? 0 : ex / (sd / SQRT(n))\n        SORT ABS(t) DESC\n        LIMIT 1\n        RETURN { target: sector.name, mv: ex, stat: t, n: n })\n    LET top = FIRST(perTarget)\n    FILTER top != null\n    RETURN { ask: \"class \u2014 averaged over analogs\", question: spec.label,\n             strongest: top.target, movePct: ROUND(top.mv*10000)/100,\n             stat: ROUND(top.stat*100)/100, statIs: \"t\", observations: top.n,\n             verdict: ABS(top.stat) >= 3 ? \"detectable\" : \"no\" })\n\nLET instanceRows = (\n  FOR spec IN [\n      { d: \"2020-03-09\", label: \"Saudi-Russia price war\" },\n      { d: \"2019-09-14\", label: \"Abqaiq/Khurais attack\" },\n      { d: \"2018-03-22\", label: \"Section 301 memo signed\" }]\n    LET perTarget = (\n      FOR b IN BaselineStats\n        FILTER b.horizonDays == 1\n        LET ps = DOCUMENT(\"PriceSeries\", b.symbol)\n        LET i = ps.prev[spec.d]\n        FILTER i != null AND i + 1 < LENGTH(ps.closes)\n        FILTER ps.closes[i] > 0 AND ps.closes[i + 1] > 0\n        LET bm = DOCUMENT(\"PriceSeries\", \"_GSPC\")\n        LET j = bm.prev[spec.d]\n        LET raw = (ps.closes[i + 1] - ps.closes[i]) / ps.closes[i]\n        LET spx = (j != null AND j + 1 < LENGTH(bm.closes) AND bm.closes[j] > 0)\n                ? (bm.closes[j + 1] - bm.closes[j]) / bm.closes[j] : 0\n        LET mv = b.useAbnormal ? raw - spx : raw\n        LET z  = b.stdev == 0 ? null : (mv - b.mean) / b.stdev\n        FILTER z != null\n        SORT ABS(z) DESC\n        RETURN { target: SPLIT(b.target, \"/\")[1], mv: mv, stat: z })\n    LET top = FIRST(perTarget)\n    FILTER top != null\n    LET near = LENGTH(FOR x IN perTarget FILTER ABS(x.stat) >= 2 RETURN 1)\n    RETURN { ask: \"instance \u2014 one day\", question: spec.label,\n             strongest: top.target, movePct: ROUND(top.mv*10000)/100,\n             stat: ROUND(top.stat*100)/100, statIs: \"z\", observations: 1,\n             seriesPast2sd: near,\n             verdict: ABS(top.stat) >= 3 ? \"detectable\"\n                    : (near >= 2 ? \"something small \u2014 below bar\" : \"no\") })\n\nFOR r IN APPEND(classRows, instanceRows)\n  RETURN r\n",
+            "query": "/* Class vs instance \u2014 the demo's whole argument in one table.\n *\n * Two ways to ask a question, measured the same way.\n *\n * A CLASS question (\"what do US tariff threats against China do?\") averages over\n * every matching event. An INSTANCE question (\"what did 2020-03-09 do?\") measures\n * one day against that asset's own normal range.\n *\n * The class rows report t across 80 independent analogs; the instance rows report\n * z for a single day. Different statistics, deliberately: with n=1 there is no\n * significance test, only \"is this outside the range this series produces\".\n *\n * The finding is the gap between them. No event CLASS in this corpus predicts a\n * market move \u2014 swept across every dyad, CAMEO code, horizon and target, 405,987\n * tests returned 2.61% at |t| >= 2.5, about the chance rate, and none survives correction. Specific large\n * surprises are unmistakable.\n *\n * READ THE FOURTH AND SIXTH ROWS TOGETHER. \"Yemen attacks Saudi Arabia with\n * military force\" is the class the Abqaiq strike BELONGS TO \u2014 GDELT has no actor\n * code for the Houthis and resolves them to YEM, so the 2019-09-16 attack is the\n * sixth-ranked analog the class retrieves. The class returns nothing. The single\n * event returns z = +5.1.\n *\n * The same event, asked about two ways, gives both answers. That is the whole\n * argument, and it is not a selection artefact: the shock is inside the evidence\n * set, averaged with 79 other Houthi attacks that hit nothing important.\n */\nLET horizon = 5\n\nLET classRows = (\n  FOR spec IN [\n      { a: \"USA\", b: \"CHN\", c: \"163\", label: \"US tariff threat -> China\" },\n      { a: \"RUS\", b: \"USA\", c: \"130\", label: \"Russia threatens the US\" },\n      { a: \"IRN\", b: \"SAU\", c: \"190\", label: \"Iran uses force -> Saudi\" },\n      { a: \"YEM\", b: \"SAU\", c: \"190\", label: \"Yemen attacks Saudi (CONTAINS Abqaiq)\" }]\n    LET analogs = (\n      FOR e IN Event\n        FILTER e.cameo == spec.c\n        FILTER e.actorFromCode == spec.a AND e.actorToCode == spec.b\n        COLLECT blk = FLOOR(DATE_DIFF(\"2018-01-01\", e.dateAdded, \"d\") / 7) INTO g\n        LET best = FIRST(FOR x IN g[*].e SORT x.numMentions DESC RETURN x)\n        SORT best.numMentions DESC\n        LIMIT 80\n        RETURN best)\n    LET perTarget = (\n      FOR sector IN Sector\n        LET base = DOCUMENT(\"BaselineStats\", CONCAT(sector.proxySymbol, \"_\", horizon))\n        LET ps   = DOCUMENT(\"PriceSeries\", sector.proxySymbol)\n        LET bm   = DOCUMENT(\"PriceSeries\", \"_GSPC\")\n        LET obs = (\n          FOR x IN analogs\n            LET i = ps.prev[x.dateAdded]\n            FILTER i != null AND i + horizon < LENGTH(ps.closes)\n            FILTER ps.closes[i] > 0 AND ps.closes[i + horizon] > 0\n            COLLECT idx = i\n            LET j = bm.pos[ps.dates[idx]]\n            LET raw = (ps.closes[idx+horizon] - ps.closes[idx]) / ps.closes[idx]\n            LET bench = (base.useAbnormal AND j != null AND j+horizon < LENGTH(bm.closes) AND bm.closes[j] > 0)\n                      ? (bm.closes[j+horizon] - bm.closes[j]) / bm.closes[j] : 0\n            RETURN raw - bench)\n        LET n = LENGTH(obs)\n        FILTER n > 1\n        LET sd = STDDEV_SAMPLE(obs)\n        LET ex = AVERAGE(obs) - base.mean\n        LET t  = sd == 0 ? 0 : ex / (sd / SQRT(n))\n        SORT ABS(t) DESC\n        LIMIT 1\n        RETURN { target: sector.name, mv: ex, stat: t, n: n })\n    LET top = FIRST(perTarget)\n    FILTER top != null\n    RETURN { ask: \"class \u2014 averaged over analogs\", question: spec.label,\n             strongest: top.target, movePct: ROUND(top.mv*10000)/100,\n             stat: ROUND(top.stat*100)/100, statIs: \"t\", observations: top.n,\n             verdict: ABS(top.stat) >= 3 ? \"detectable\" : \"no\" })\n\nLET instanceRows = (\n  FOR spec IN [\n      { d: \"2020-03-09\", label: \"Saudi-Russia price war\" },\n      { d: \"2019-09-14\", label: \"Abqaiq/Khurais attack\" },\n      { d: \"2018-03-22\", label: \"Section 301 memo signed\" }]\n    LET perTarget = (\n      FOR b IN BaselineStats\n        FILTER b.horizonDays == 1\n        LET ps = DOCUMENT(\"PriceSeries\", b.symbol)\n        LET i = ps.prev[spec.d]\n        FILTER i != null AND i + 1 < LENGTH(ps.closes)\n        FILTER ps.closes[i] > 0 AND ps.closes[i + 1] > 0\n        LET bm = DOCUMENT(\"PriceSeries\", \"_GSPC\")\n        LET j = bm.prev[spec.d]\n        LET raw = (ps.closes[i + 1] - ps.closes[i]) / ps.closes[i]\n        LET spx = (j != null AND j + 1 < LENGTH(bm.closes) AND bm.closes[j] > 0)\n                ? (bm.closes[j + 1] - bm.closes[j]) / bm.closes[j] : 0\n        LET mv = b.useAbnormal ? raw - spx : raw\n        LET z  = b.stdev == 0 ? null : (mv - b.mean) / b.stdev\n        FILTER z != null\n        SORT ABS(z) DESC\n        RETURN { target: SPLIT(b.target, \"/\")[1], mv: mv, stat: z })\n    LET top = FIRST(perTarget)\n    FILTER top != null\n    LET near = LENGTH(FOR x IN perTarget FILTER ABS(x.stat) >= 2 RETURN 1)\n    RETURN { ask: \"instance \u2014 one day\", question: spec.label,\n             strongest: top.target, movePct: ROUND(top.mv*10000)/100,\n             stat: ROUND(top.stat*100)/100, statIs: \"z\", observations: 1,\n             seriesPast2sd: near,\n             verdict: ABS(top.stat) >= 3 ? \"detectable\"\n                    : (near >= 2 ? \"something small \u2014 below bar\" : \"no\") })\n\nFOR r IN APPEND(classRows, instanceRows)\n  RETURN r\n",
         },
         {
             "name": "GDELT · Oil shock — the same method on a real shock (E2)",
@@ -430,8 +428,8 @@ FOR e IN episodes
         {
             "name": "GDELT · Theme→Sector density (the honest caveat)",
             "description": ("Shows why the cited analogs do not currently discriminate the "
-                            "ranking: Theme->Sector is complete bipartite (§7.1, §9.1b). "
-                            "Have this ready — a research group will ask."),
+                            "ranking: Theme->Sector is complete bipartite. "
+                            "Have this ready; someone careful will ask."),
             "query": """/* Every theme correlates with every sector: structure carries no
    selectivity at that hop, only the weights do. Run this rather than
    explaining it — 16 themes x 11 sectors x 4 horizons = 704. */
@@ -449,7 +447,7 @@ RETURN {
   confidentEdges: LENGTH(FOR e IN toSector FILTER ABS(e.tStat) >= 2 RETURN 1) }""",
         },
         {
-            "name": "GDELT · Portfolio exposure by sector (D5 table)",
+            "name": "GDELT · Portfolio exposure by sector (table)",
             "description": ("The portfolio overlay as a table — every holding resolved to a "
                             "sector, including the ETF sleeve, with how it resolved."),
             "query": """/* Cross-graph join: demo portfolio -> holdings -> instrument -> sector.
@@ -478,10 +476,10 @@ FOR p IN Portfolio
                  : (inst.sector != null ? "Index.sector (ETF proxy)" : "UNRESOLVED") }""",
         },
         {
-            "name": "GDELT · Portfolio exposure ROLLED UP by sector (D5)",
+            "name": "GDELT · Portfolio exposure ROLLED UP by sector",
             "description": ("The one number a client asks for: total portfolio weight per "
                             "sector, so the what-if's sector moves land on real exposure."),
-            "query": """/* D5 rolled up: weight per sector, plus the holdings behind each row.
+            "query": """/* Rolled up: weight per sector, plus the holdings behind each row.
  * Resolves both routes (partOf for companies, Index.sector for the ETF sleeve),
  * so `SUM(weight)` reconciles to 1.00 rather than silently dropping 37%. */
 WITH Portfolio, Holding, Company, Index, Sector
@@ -502,7 +500,7 @@ FOR p IN Portfolio
 
 
 # --------------------------------------------------------------------------
-# Canvas actions — right-click. Name carries the applicable types (skill §naming)
+# Canvas actions — right-click. Name carries the applicable types
 # --------------------------------------------------------------------------
 def action_name(types: list[str], base: str) -> str:
     return f"[{', '.join(types)}] {base}"
@@ -560,7 +558,7 @@ FOR node IN @nodes
             "types": ["Event"], "base": "Temporal neighbours (precedes, coOccursWith)",
             "description": ("What happened just before and after: the day-to-day spine forward "
                             "and back, plus other events the same day involving the same "
-                            "country pair. (R3)"),
+                            "country pair."),
             "query": f"""{w}
 FOR node IN @nodes
   FILTER IS_SAME_COLLECTION("Event", node)
@@ -595,7 +593,7 @@ FOR node IN @nodes
     RETURN p""",
         },
         {
-            "types": ["Sector", "Index", "Company"], "base": "Portfolio exposure (D5 join)",
+            "types": ["Sector", "Index", "Company"], "base": "Portfolio exposure (join)",
             "description": "Cross-graph join down to the demo portfolio's holdings.",
             "query": f"""{w}
 FOR node IN @nodes

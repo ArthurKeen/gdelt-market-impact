@@ -222,9 +222,10 @@ def _domain(url: str) -> str | None:
 # and explainable.
 #
 # Seam for the harder cases (one entity under several codes -- a leader appearing
-# as both a person and a government code): `arango-entity-resolution`'s
-# blocking+similarity+clustering pipeline runs over the Actor collection after
-# this load. Wired via --er; not required for E1, where the dyad is code-clean.
+# as both a person and a government code).
+# An entity-resolution pass (blocking, similarity, clustering) over the Actor
+# collection would handle them; it is not needed for the tariff questions, where
+# the dyad is code-clean.
 CAMEO_TYPE = {
     "GOV": "government", "MIL": "military", "MED": "media", "BUS": "business",
     "LEG": "legislature", "JUD": "judiciary", "COP": "police", "OPP": "opposition",
@@ -490,7 +491,7 @@ def transform(events, gkg, prices: list[dict], spool_dir: pathlib.Path | None = 
     #       (dyad x day), no supernode, and every hop reads as "the next
     #       development in this relationship".
     #
-    # The "windowed" half of R3 is served by the range index on Event.dateAdded, not
+    # The "windowed" half of temporal traversal is served by the range index on Event.dateAdded, not
     # by edges; the anchors carry `isDayAnchor` so the spine is queryable directly.
     by_dyad: dict[tuple, list[tuple[str, str]]] = collections.defaultdict(list)
     for ekey, doc in nodes["Event"].items():
@@ -561,8 +562,8 @@ INDEXES = {
 }
 
 
-# Replication factor for every collection this script creates. The pilot
-# deployment is a 3-DBServer cluster, and RF 1 means a lost DBServer is lost data
+# Replication factor for every collection this script creates. On a cluster,
+# RF 1 means a lost DBServer is lost data
 # with no second copy — the edge collections in particular have no older copy
 # since the camelCase migration recreated them. Set at CREATE time on purpose:
 # raising it afterwards works, but the next `--drop` rebuild would silently put it
@@ -707,7 +708,7 @@ def load_via_arangoimport(built: dict, threads: int = 8) -> None:
     Same idempotency contract — `--on-duplicate update` mirrors
     `import_bulk(on_duplicate="update")` — but it streams whole files in parallel
     rather than paying a round trip per 5,000 rows. Worth it once the continuous
-    pull (W4/G12) takes the corpus past a few million documents; below that the
+    pull takes the corpus past a few million documents; below that the
     Python path is simpler and fast enough.
     """
     from arangoimport_load import docker_available, import_collections
@@ -826,7 +827,7 @@ def main() -> int:
                          "Event-derived nodes (Actor, Source, ...) are left untouched.")
     ap.add_argument("--via-arangoimport", action="store_true",
                     help="load through arangoimport in Docker rather than batched "
-                         "import_bulk — faster past a few million documents (W4)")
+                         "import_bulk — faster past a few million documents")
     ap.add_argument("--import-threads", type=int, default=8,
                     help="arangoimport --threads (default 8)")
     ap.add_argument("--replication-factor", type=int, default=DEFAULT_REPLICATION_FACTOR,

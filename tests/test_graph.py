@@ -73,7 +73,7 @@ def test_price_series_carry_both_date_indexes(db):
 
 def test_similarto_is_empty_by_design(db):
     """Analog retrieval runs at query time so the score stays inspectable. A
-    non-zero count means someone materialised it and R4 needs re-arguing."""
+    non-zero count means someone materialised it and the explainability argument needs re-arguing."""
     assert db.collection("similarTo").count() == 0
 
 
@@ -136,7 +136,7 @@ def test_no_series_is_silently_dropped_from_a_single_event(db):
     """BaselineStats.symbol is the raw ticker; PriceSeries is keyed by the
     sanitised form, because "^" is illegal in an ArangoDB key. Joining on the raw
     symbol returned 14 rows of 17 and quietly lost ^GSPC, ^NDX and ^VIX — so the
-    panel could not show the S&P comparison the brief's Abqaiq argument rests on.
+    panel could not show the S&P comparison the Abqaiq argument rests on.
     """
     import sys, pathlib as _p
     sys.path.insert(0, str(_p.Path(__file__).resolve().parent.parent))

@@ -88,8 +88,8 @@ discovering it inside a label.
 The download is not the work. Three things are:
 
 1. **Name resolution.** UCDP actor names will not match the strings our extractor
-   produces (`IRGC / Quds`, `AQAP / al-Qaeda`). This is exactly what
-   `arango-entity-resolution` is in the reuse map for.
+   produces (`IRGC / Quds`, `AQAP / al-Qaeda`). This is an entity-resolution
+   problem in its own right.
 2. **Window overlap.** Our corpus is 2018-02-27..2022-03-31. Support coding is
    annual and conflict-scoped, so coverage has to be checked per group rather than
    assumed.

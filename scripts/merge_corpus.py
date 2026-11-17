@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Merge the continuous pull with the existing episode-targeted corpus.
 
-W4/G12 replaces episode targeting with a continuous pull across the E1 span, but
+The continuous pull replaces episode targeting with a continuous pull across the E1 span, but
 the existing `data/*.jsonl` also holds **E2 oil episodes running to 2022-03** that
 the continuous window does not cover. A plain re-pull would silently drop them —
 `gdelt_http_pull.py` opens its output with `"w"`.

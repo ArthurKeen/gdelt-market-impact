@@ -508,7 +508,7 @@ FOR ev IN event_analog
 
 
 # --- (c) PriceSeries + BaselineStats -----------------------------------------
-# W1 / G11. The demo answer used to be read from theme-level `correlatesWith`
+# The demo answer used to be read from theme-level `correlatesWith`
 # edges, so it was identical whichever analogs were retrieved and the cited
 # events were decorative. To compute the outcome over the analogs a
 # query actually returns, the price history has to be reachable from AQL.
@@ -781,7 +781,7 @@ def main() -> int:
             "RETURN OLD._key", bind_vars={"keep": [e["_key"] for e in affects]}))
         if stale:
             print(f"  [edges] affects          {len(stale):>9,} stale removed")
-    # W1/G11: the query-time outcome path. Plain documents, keyed lookup only —
+    # The query-time outcome path. Plain documents, keyed lookup only —
     # deliberately not part of the named graph, nothing traverses them.
     if not args.baselines_only:
         write_docs(database, "PriceSeries", series_docs)

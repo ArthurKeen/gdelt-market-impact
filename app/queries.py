@@ -102,7 +102,7 @@ FOR sector IN Sector
   LET excess = AVERAGE(obs) - base.mean
   LET t = (sd == null OR sd == 0) ? null : excess / (sd / SQRT(n))
   SORT ABS(t == null ? 0 : t) DESC
-  // The brief's S1 asks for a magnitude RANGE, not only a point estimate. The
+  // The answer needs a magnitude RANGE, not only a point estimate. The
   // theme-level query this replaced returned one; the analog-conditional rewrite
   // dropped it by oversight. Worst and best observed outcome across the retrieved
   // analogs — often the more honest number, since a +0.5% mean over observations
@@ -217,7 +217,7 @@ FOR b IN BaselineStats
   // BaselineStats.symbol is the RAW ticker; PriceSeries is keyed by the sanitised
   // form, because "^" is illegal in an ArangoDB key. Joining on the raw symbol
   // silently returned null for ^GSPC, ^NDX and ^VIX — 14 rows of 17 — so the panel
-  // could never show the S&P comparison the brief's Abqaiq argument rests on.
+  // could never show the S&P comparison the Abqaiq argument rests on.
   LET seriesKey = SUBSTITUTE(b.symbol, "^", "_")
   LET ps = DOCUMENT("PriceSeries", seriesKey)
   LET cond = DOCUMENT("ConditionalBaseline",

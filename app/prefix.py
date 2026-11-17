@@ -1,8 +1,8 @@
 """Strip the platform mount prefix before routing.
 
-On the Arango platform a BYOC service is mounted at
-``/_service/uds/_db/<db>/<instance>/`` and the ingress forwards requests with the
-prefix intact, while the FastAPI routes stay at ``/``, ``/api`` and ``/static``.
+Behind a reverse proxy the app may be mounted under a path prefix that the
+ingress forwards intact, while the FastAPI routes stay at ``/``, ``/api`` and
+``/static``. Set ``SERVICE_URL_PATH_PREFIX`` to that prefix.
 
 This removes the prefix *the Starlette way*: ``scope["path"]`` keeps the full URL
 path and the prefix is appended to ``scope["root_path"]``. Starlette's router then
@@ -11,9 +11,6 @@ routes on ``path`` minus ``root_path``, and ``Mount``/``StaticFiles`` extend
 — breaks ``StaticFiles`` on Starlette >= 0.33.
 
 With no prefix configured it is a no-op, so running locally is unchanged.
-
-Pattern adapted from project-sentinel and arango-ontoextract, which solved this
-first; the comment above is the part worth carrying, not the code.
 """
 from __future__ import annotations
 

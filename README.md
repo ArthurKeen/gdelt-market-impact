@@ -83,7 +83,7 @@ coverage names an oil facility ([H5](docs/exposure-hypotheses-h5.md)). The event
 sets do not isolate supply shocks yet, so neither result says Asia is unexposed.
 The paths explain why a market is worth watching; they are not evidence it moved.
 (The commits that fixed each prediction before it ran are in the original working
-repository, not this single-commit public copy; each write-up says so.)
+repository, which is not published with this copy; each write-up says so.)
 
 ## Data sources
 

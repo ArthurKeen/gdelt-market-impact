@@ -1,10 +1,10 @@
-"""Pull 5-10 yrs of market price history -> data/prices.jsonl (POC).
+"""Pull years of market price history -> data/prices.jsonl.
 
 Feeds the event-study `correlatesWith`/`affects` edges (build_inferred_edges.py):
 realized moves of sector ETFs / indices / commodities in the days after each
-historical analog. Free sources, per the ticker-source decision:
+historical analog. Free sources (see docs/market-data.md):
   - yfinance  : indices, sector ETFs, commodities, company tickers (daily OHLCV)
-  - FRED      : macro series (CPI, Fed funds, yields) — optional, needs a free
+  - FRED      : daily yields, breakeven, dollar — optional, needs a free
                 FRED API key in FRED_API_KEY (or MARKET_DATA_API_KEY).
 
 Output rows: {symbol, assetClass, date, open, high, low, close, adjClose, volume}.

@@ -12,7 +12,7 @@ def env(name: str, default: str | None = None) -> str | None:
 
     `python-dotenv` strips quotes when it parses `.env`; almost nothing else does.
     `docker run --env-file .env` passes `PASSWORD="s3cret"` through with the quote
-    characters attached, and the platform injecting variables into a BYOC container
+    characters attached, and a container platform injecting variables
     makes its own choice. The failure is a bare `[HTTP 401] bad username/password`
     with nothing pointing at quoting, which is an expensive hour.
 

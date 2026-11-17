@@ -124,7 +124,7 @@ pre-registration.
 
 ---
 
-*Publication note.* This repository was published from a single commit. The text
+*Publication note.* This repository was published without its working history. The text
 above "Results" was committed in the original working repository as `ee40d07`
 (2026-11-17 08:40 −07:00), before its code existed; the run and these results
 followed in `a7875c4` (08:44). That history is not part of this public copy, so

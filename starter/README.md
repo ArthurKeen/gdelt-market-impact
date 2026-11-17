@@ -21,7 +21,7 @@ ArangoDB runs from its free Docker image.
 starter/run.sh
 ```
 
-Then open <http://127.0.0.1:8811>. Seven steps run first, each one a script from
+Then open <http://127.0.0.1:8811>. Eight steps run first, each one a script from
 `../scripts` — the production pipeline, pointed at a local database:
 
 | step | what happens |
@@ -32,7 +32,8 @@ Then open <http://127.0.0.1:8811>. Seven steps run first, each one a script from
 | 4 | The graph: events, actors, places, news themes, sectors and a sample portfolio |
 | 5 | Price series, "normal day" baselines, and the event-study edges |
 | 6 | Who acted and what was hit, read from the news coverage |
-| 7 | The app starts |
+| 7 | The supply paths: chokepoints, the goods through them, who depends on them |
+| 8 | The app starts |
 
 ## Try these
 

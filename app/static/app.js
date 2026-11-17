@@ -1072,7 +1072,7 @@ function runQuestion(p) {
     b.addEventListener('click', () => applyPreset(b.dataset.preset, b)));
 
   // ?preset=<name> applies a preset on load. Two reasons beyond convenience: a demo
-  // state becomes a shareable link, and a figure for the brief can be re-captured by
+  // state becomes a shareable link, and a figure for a write-up can be re-captured by
   // fetching a URL instead of being reproduced by hand from a screenshot.
   const wanted = new URLSearchParams(location.search).get('preset');
 

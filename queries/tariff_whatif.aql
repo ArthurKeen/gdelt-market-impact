@@ -21,9 +21,9 @@
  *
  * And what that replacement found, so nobody re-derives it from this file: there
  * is NO detectable sector effect from a routine tariff announcement. Swept across
- * every dyad, CAMEO code, horizon and target in the 21.1M-event corpus, 404,433
+ * every dyad, CAMEO code, horizon and target in the 21.3M-event corpus, 405,987
  * tests: NOT ONE survives correction for a search that wide, the strongest missing
- * the bar by 2.5x (scripts/multiple_testing.py). Specific large shocks are
+ * the bar by 3.4x (scripts/multiple_testing.py). Specific large shocks are
  * measurable (Saudi-Russia price war, WTI -24.59%, z = -8.5); event CLASSES are
  * not. That contrast is the finding.
  *
@@ -36,7 +36,7 @@
  *
  * Traversing correlatesWith straight out of an Event returns zero rows.
  *
- * WITH is mandatory here: this is a cluster, and the traversal reaches vertex
+ * WITH is mandatory here on a cluster: the traversal reaches vertex
  * collections (Theme, Sector, Index, Commodity) that are not named in the
  * traversal loop itself — only the edge collections are. Without it the query
  * fails at EXECUTION time (error 1521), not at parse time, so it can look fine
@@ -84,7 +84,7 @@ FOR ev IN analogs
         analogDate: ev.dateAdded,
         theme: theme.name,
         articleSupport: tagEdge.articleCount,
-        path: path                     // the actual subgraph used (R4)
+        path: path                     // the actual subgraph used
       }
       LET moves = (FOR h IN hits FILTER h.move != null RETURN h.move)
       SORT AVERAGE(moves) DESC

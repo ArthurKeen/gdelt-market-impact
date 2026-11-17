@@ -1,4 +1,4 @@
-"""Arithmetic and packaging invariants. No database, no network, sub-second.
+"""Arithmetic invariants. No database, no network, sub-second.
 
 Every test here corresponds to a defect that actually occurred during this project.
 They are not chosen for coverage; they are chosen because each one was expensive.
@@ -7,9 +7,7 @@ from __future__ import annotations
 
 import json
 import os
-import shutil
 import pathlib
-import subprocess
 import sys
 
 import pytest
@@ -65,7 +63,7 @@ def test_window_outside_the_price_history_returns_none():
 # --------------------------------------------------------------------------
 # Multiple-testing. The normal approximation says the strongest cell in the
 # sweep survives correction; the exact Student-t tail says it misses — by 139x on
-# the 5.52M-event corpus, and by 2.5x on the 21.1M-event one.
+# the 5.52M-event corpus, and by 3.4x on the 21.3M-event one.
 # The headline claim depends on which one is used.
 # --------------------------------------------------------------------------
 def test_exact_t_tail_is_fatter_than_normal_at_small_n():

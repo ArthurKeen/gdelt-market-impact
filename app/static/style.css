@@ -1,5 +1,5 @@
-/* Palette matches the gdelt_causal_impact Visualizer theme and the written brief,
-   so a screenshot from here sits beside those without looking like a third system.
+/* Palette matches the gdelt_causal_impact Visualizer theme, so a screenshot
+   from here sits beside one from there without looking like a second system.
    Hue tracks the causal chain: news -> theme -> market. */
 :root{
   --paper:#F7F8FA; --surface:#fff; --sunk:#EDF0F5; --rule:#DCE2EA;

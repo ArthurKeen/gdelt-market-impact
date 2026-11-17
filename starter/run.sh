@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Build the whole thing on your laptop: one month of GDELT, nine years of prices,
-# a local ArangoDB, and the same app — in about fifteen minutes, with no accounts.
+# a local ArangoDB, and the same app — in a few minutes, with no accounts.
 #
 #   starter/run.sh            # build, then serve on http://127.0.0.1:8811
 #   starter/run.sh --serve    # just serve what is already built

@@ -16,7 +16,7 @@ Both are free. Implemented in [`scripts/market_data_pull.py`](../scripts/market_
 and validated live on 2026-08-11.
 
 **Why yfinance:** it needs no account, no key, and no procurement
-conversation, and it covers all four asset classes the §5 scenarios reference in
+conversation, and it covers all four asset classes the demo scenarios reference in
 one interface. The success criteria here are about *explainability of the graph*,
 not about tick fidelity — daily adjusted closes are the correct granularity for
 an event study measured in days-after. Paying a vendor at this stage would buy
@@ -104,7 +104,7 @@ mechanism than crude — tariffs are a price-level shock before they are an ener
 shock. Adding `UST10Y`, `T10YIE`, `CPIAUCSL` and `FEDFUNDS` as propagation
 sources materially widens what E1 can explain.
 
-A secondary benefit matters for success criterion R4 (auditable, not a black
+A secondary benefit matters for the goal of being auditable (not a black
 box): FRED series are official, permanently addressable, and revision-tracked, so
 an edge weight derived from them is citable in a way one derived from a scraped
 endpoint is not.

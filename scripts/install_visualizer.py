@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Install the Graph Visualizer theme for `gdelt_market` (colors + icons + rules).
 
-Per the `arangodb-visualizer-customizer` skill:
+How the theme is installed, and why:
   * theme lives in `_graphThemeStore` in the TARGET db (managed/cloud deployment),
     upserted by (graphId, name), `createdAt` preserved, `replace(check_rev=False)`;
   * installed with `isDefault: false` — a default theme cannot be saved/edited in
@@ -24,7 +24,7 @@ below was measured against the loaded graph, not guessed:
     That cut reproduces the stored `lowConfidence` flag exactly (226 false /
     862 true), so significant edges are coloured and the other 862 stay grey.
     A grey edge is the honest default here: it says "not distinguishable from
-    baseline", which is precisely the §9.1 caveat made visible on the canvas.
+    baseline", which is precisely the confidence caveat made visible on the canvas.
   * affects.corr spans -0.066 .. +0.590; only Brent->Energy clears 0.40.
 
 Run:  python scripts/install_visualizer.py [--dry-run]
@@ -84,7 +84,7 @@ def node_rule(attr: str, attr_type: str, op: str, value, color: str,
     """One attribute-based node rule in the nested schema the Visualizer expects.
 
     Flat `{"name", "condition": "<expr>"}` rules render as BLACK nodes and show
-    blank in the Attribute-based editor — see the skill's rule section.
+    blank in the Attribute-based editor.
     """
     return {
         "id": _rule_id("node", tag, attr, op, str(value)),

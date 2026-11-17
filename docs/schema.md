@@ -112,7 +112,7 @@ Created by `build_graph.py` (`INDEXES` dict — kept in code so it stays in sync
 - `Event`: persistent `[cameo]`, `[year, month]`, `[dateAdded]`, `[avgTone]`,
   `[actorFromCode, actorToCode]`, `[isDayAnchor, dateAdded]`.
 - `Actor[code]`, `Theme[name]`, `Location[countryCode]`, `Holding[ticker]`.
-- Temporal: `[dateAdded]` on `Event` serves the *windowed* half of R3;
+- Temporal: `[dateAdded]` on `Event` serves the *windowed* half of temporal queries;
   `precedes[lagDays]` serves the *sequential* half. `mentions[role]`,
   `taggedWith[articleCount]` (rank an event's themes by article support).
 - Analog search: **ArangoSearch view** `event_analog` over `Event`+`Theme`+`Actor`
@@ -125,5 +125,5 @@ Created by `build_graph.py` (`INDEXES` dict — kept in code so it stays in sync
 - **Structural half = mechanical** (table→collection, FK→edge): a plain
   relational-to-graph mapping that a generic loader could produce.
 - **Inferred half = bespoke** (similarity + event-study) → lives in this repo.
-- Keep the event graph queryable three ways: Policy-Reaction (tone over time),
-  Global-Trends (macro risk), and the new causal/what-if traversal (S4).
+- Keep the event graph queryable for tone over time and macro risk as well as
+  the causal/what-if traversal.

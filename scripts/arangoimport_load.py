@@ -3,7 +3,7 @@
 
 `build_graph.py` loads with `import_bulk` in 5,000-row batches over HTTP. That is
 fine at the 1.2M-document scale the episode-targeted corpus produced. The
-continuous pull (W4/G12) is several times larger, and `arangoimport` is built for
+continuous pull is several times larger, and `arangoimport` is built for
 exactly this: it streams a file, parallelises across threads, and does not pay the
 per-batch round trip that a Python loop does.
 

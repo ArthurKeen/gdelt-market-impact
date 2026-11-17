@@ -57,7 +57,7 @@ THEME_GROUPS: dict[str, list[str]] = {
         "ECON_CENTRALBANK",                      # 1,874
         "EPU_POLICY_MONETARY_POLICY",            #   800
     ],
-    # Market-reaction context (useful for the Policy-Reaction pattern, S4).
+    # Market-reaction context (useful for tone-over-time questions).
     "market": [
         "ECON_STOCKMARKET",                      # 9,863
         "ECON_WORLDCURRENCIES",                  # 5,877

@@ -105,8 +105,8 @@ Saudi Aramco, tankers). Then test H1 and the Korea version on that set.
 
 ---
 
-*Publication note.* This repository was published from a single commit. The
+*Publication note.* This repository was published without its working history. The
 pre-registration above was committed in the original working repository as
-`dd547ef` (2026-11-16 17:14 −07:00), before the script that runs it and before
+`dd547ef` (2026-11-16 17:14 −07:00, which is 2026-11-17 00:14 UTC), before the script that runs it and before
 the results, which followed in `2c3afc5` (17:26). That history is not part of this
 public copy, so the order cannot be checked from here.

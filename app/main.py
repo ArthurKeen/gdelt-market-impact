@@ -248,13 +248,13 @@ def portfolio():
 
 BASELINES = {"global": "z", "trailing": "zTrailing", "regime": "zRegime"}
 
-# Named corpus windows. `delivered` is the span every published number and all four
-# demo presets were measured over, and it stays the default so an extended corpus
-# never silently changes a customer-facing answer. Keys for it carry no suffix, so
+# Named corpus windows. `delivered` is the span every originally published number
+# and all four demo presets were measured over, and it stays the default so an
+# extended corpus never silently changes a published answer. Keys for it carry no suffix, so
 # a database built before windows existed still resolves.
 WINDOWS = {
     "delivered": {"from": "2018-02-27", "to": "2022-03-31", "suffix": "",
-                  "label": "2018-2022, as delivered"},
+                  "label": "2018-2022, the original window"},
     # No bounds: whatever the corpus holds. The label is filled from the live
     # corpus rather than written here, so it cannot drift from the data.
     "full": {"from": None, "to": None, "suffix": "_full",
